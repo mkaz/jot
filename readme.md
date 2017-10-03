@@ -17,6 +17,15 @@ A simple command-line tool for taking notes stored in plain text files.
 $ jot.py "Here is my note"
 ```
 
-2. Free form Jot
+2. Free form jot
 ```
 $ jot.py
+<< Enter Text to Jot (ctrl-d to end) >>
+Here is my 
+multi-line note.
+```
+
+3. Using STDIN
+```
+
+```
