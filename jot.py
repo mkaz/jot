@@ -108,7 +108,7 @@ if args.week:
 elif args.today:
     print()
     show_date(today)
-elif len(args.date) == 1:
+elif args.date and len(args.date) == 1:
     print()
     dt = datetime.strptime( args.date[0], "%Y-%m-%d")
     show_date(dt)
