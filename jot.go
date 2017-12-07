@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -15,25 +16,31 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
+	chalk "github.com/danielchatfield/go-chalk"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
 // globals
 var helpFlag bool
 var editFlag bool
+var noColor bool
 var now time.Time
+var tsRe *regexp.Regexp
 var errlog *log.Logger
 
 func main() {
 	errlog = log.New(os.Stderr, "", 0)
 	now = time.Now()
+	tsRe = regexp.MustCompile(`[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+[APM]+ ::.*`)
 
 	// parse command-line parameters
 	flag.BoolVar(&helpFlag, "help", false, "Display Help")
 	flag.BoolVar(&editFlag, "edit", false, "Edit flag, suppresses timestamp")
+	flag.BoolVar(&noColor, "nocolor", false, "Use to disable colors")
 	var n = flag.Int("n", 0, "Last N days to show")
 	var dd = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	flag.Parse()
@@ -105,6 +112,7 @@ func main() {
 
 }
 
+// Show Last N Days of Jots
 func showLastDays(n int) {
 	n = n - 1 // we want to include today
 	for n >= 0 {
@@ -114,18 +122,44 @@ func showLastDays(n int) {
 	}
 }
 
+// Display a Jot by File date
 func showFileDate(dt time.Time) {
+	prevBlank := false
+
 	fn, _ := getFilepathDate(dt)
-	data, err := ioutil.ReadFile(fn)
-	if err == nil {
-		fmt.Println(string(data))
+	f, err := os.Open(fn)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if tsRe.MatchString(line) {
+			if prevBlank { // add empty line above date line
+				fmt.Println("")
+				prevBlank = false
+			}
+			fmt.Println(chalk.Yellow(line))
+		} else {
+			if prevBlank {
+				fmt.Println("|")
+				prevBlank = false
+			}
+			if line == "" {
+				prevBlank = true
+			} else {
+				prevBlank = false
+				fmt.Println("| " + line)
+			}
+		}
 	}
 }
 
+// Write Jot to File
 func writeFile(filename, text string) {
-
-	// append timestamp
-	if !editFlag {
+	if !editFlag { // append timestamp
 		// TODO: config for timestamp date string
 		var timestamp = now.Format("2006-01-02 3:04PM")
 		text = "\n" + timestamp + " :: " + text
