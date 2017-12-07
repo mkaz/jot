@@ -34,6 +34,8 @@ func main() {
 	// parse command-line parameters
 	flag.BoolVar(&helpFlag, "help", false, "Display Help")
 	flag.BoolVar(&editFlag, "edit", false, "Edit flag, suppresses timestamp")
+	var n = flag.Int("n", 0, "Last N days to show")
+	var dd = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	flag.Parse()
 
 	if helpFlag {
@@ -43,18 +45,37 @@ func main() {
 	// Read / Search
 	// TODO: add reading, searching notes
 
+	if *n > 0 {
+		showLastDays(*n)
+		os.Exit(0)
+	}
+
+	if *dd != "" {
+		dt, err := time.Parse("2006-01-02", *dd)
+		if err != nil {
+			errlog.Fatalln("Error parsing date, try format yyyy-mm-dd", err)
+		}
+		showFileDate(dt)
+		os.Exit(0)
+	}
+
 	// Writing Jot
 	// TODO: templates
 
 	// File: `${ jotsdir }/2017/12/jot-2017-12-06.txt`
-	file := getFilename()
+	file, dir := getFilepathDate(now)
+
+	// create directory if does not exist
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, os.ModePerm)
+	}
 
 	// check if received a command-line jot
 	args := flag.Args()
 	if len(args) > 0 {
 		jot := strings.Join(args[0:], " ")
 		writeFile(file, jot)
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	// terminal checks if stdin is associated with terminal or pipe
@@ -63,7 +84,7 @@ func main() {
 	if !terminal.IsTerminal(0) {
 		data, _ := ioutil.ReadAll(os.Stdin)
 		writeFile(file, string(data))
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	// open file in editor
@@ -82,6 +103,23 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
+}
+
+func showLastDays(n int) {
+	n = n - 1 // we want to include today
+	for n >= 0 {
+		d := now.AddDate(0, 0, -1*n)
+		showFileDate(d)
+		n--
+	}
+}
+
+func showFileDate(dt time.Time) {
+	fn, _ := getFilepathDate(dt)
+	data, err := ioutil.ReadFile(fn)
+	if err == nil {
+		fmt.Println(string(data))
+	}
 }
 
 func writeFile(filename, text string) {
@@ -105,7 +143,7 @@ func writeFile(filename, text string) {
 }
 
 // Determine file to edit by date
-func getFilename() string {
+func getFilepathDate(dt time.Time) (filename, dir string) {
 	usr, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
@@ -118,24 +156,20 @@ func getFilename() string {
 		errlog.Fatalln("Base directory: ~/Documents/jots/ does not exist")
 	}
 
-	var dir = filepath.Join(base, now.Format("2006"), now.Format("01"))
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, os.ModePerm)
-	}
+	// build directory from date
+	dir = filepath.Join(base, dt.Format("2006"), dt.Format("01"))
 
 	// build filename from date
-	// TODO: config for filename
-	filename := "jot-" + now.Format("2006-01-02") + ".txt"
+	filename = "jot-" + dt.Format("2006-01-02") + ".txt"
 	var file = filepath.Join(dir, filename)
 
-	return file
+	return file, dir
 }
 
 // Display Usage
 func usage() {
-
 	fmt.Println("usage: jot [-help]\n")
 	fmt.Println("Arguments:")
 	flag.PrintDefaults()
-	os.Exit(1)
+	os.Exit(0)
 }
