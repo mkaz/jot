@@ -22,7 +22,8 @@ import (
 )
 
 // globals
-var help bool
+var helpFlag bool
+var editFlag bool
 var now time.Time
 var errlog *log.Logger
 
@@ -31,21 +32,28 @@ func main() {
 	now = time.Now()
 
 	// parse command-line parameters
-	flag.BoolVar(&help, "help", false, "Display Help")
+	flag.BoolVar(&helpFlag, "help", false, "Display Help")
+	flag.BoolVar(&editFlag, "edit", false, "Edit flag, suppresses timestamp")
 	flag.Parse()
-	if help {
+
+	if helpFlag {
 		usage()
 	}
 
-	// File: `${ jotsdir }/2017/12/jot-2017-12-06.txt`
-	var file = getFilename()
+	// Read / Search
+	// TODO: add reading, searching notes
 
-	// check if received a command-line note
-	// if so append to file and finish
+	// Writing Jot
+	// TODO: templates
+
+	// File: `${ jotsdir }/2017/12/jot-2017-12-06.txt`
+	file := getFilename()
+
+	// check if received a command-line jot
 	args := flag.Args()
 	if len(args) > 0 {
 		jot := strings.Join(args[0:], " ")
-		fmt.Println(">> Input:", jot)
+		writeFile(file, jot)
 		os.Exit(1)
 	}
 
@@ -54,16 +62,46 @@ func main() {
 	// for user input
 	if !terminal.IsTerminal(0) {
 		data, _ := ioutil.ReadAll(os.Stdin)
-		fmt.Println(string(data))
+		writeFile(file, string(data))
 		os.Exit(1)
 	}
 
 	// open file in editor
-	cmd := exec.Command("vim", file)
+	var editorArgs []string
+
+	if !editFlag {
+		writeFile(file, "")                           // call writeFile which creates/appends timestamp
+		editorArgs = append(editorArgs, "+normal G$") // position at end of file open cursor
+	}
+
+	// TODO: use env var EDITOR
+	// "+" for vim positions cursor on last line
+	editorArgs = append(editorArgs, file)
+	cmd := exec.Command("vim", editorArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
+}
+
+func writeFile(filename, text string) {
+
+	// append timestamp
+	if !editFlag {
+		// TODO: config for timestamp date string
+		var timestamp = now.Format("2006-01-02 3:04PM")
+		text = "\n" + timestamp + " :: " + text
+	}
+
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		errlog.Fatalln("Error opening file to append:", err)
+	}
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+		errlog.Fatalln("Error writing file:", err)
+	}
 }
 
 // Determine file to edit by date
@@ -74,6 +112,7 @@ func getFilename() string {
 	}
 
 	// check if directories exists
+	// TODO: config for base directory
 	var base = filepath.Join(usr.HomeDir, "Documents", "jots")
 	if _, err := os.Stat(base); os.IsNotExist(err) {
 		errlog.Fatalln("Base directory: ~/Documents/jots/ does not exist")
@@ -85,6 +124,7 @@ func getFilename() string {
 	}
 
 	// build filename from date
+	// TODO: config for filename
 	filename := "jot-" + now.Format("2006-01-02") + ".txt"
 	var file = filepath.Join(dir, filename)
 
