@@ -28,6 +28,7 @@ import (
 var helpFlag bool
 var editFlag bool
 var noColor bool
+var n int
 var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
@@ -41,28 +42,52 @@ func main() {
 	flag.BoolVar(&helpFlag, "help", false, "Display Help")
 	flag.BoolVar(&editFlag, "edit", false, "Edit flag, suppresses timestamp")
 	flag.BoolVar(&noColor, "nocolor", false, "Use to disable colors")
-	var n = flag.Int("n", 0, "Last N days to show")
-	var dd = flag.String("date", "", "Show speific date yyyy-mm-dd")
+	flag.IntVar(&n, "n", 0, "Last N days to show")
+	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
+	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
+	var week = flag.Bool("week", false, "Show last week, alias -n 7")
 	flag.Parse()
 
 	if helpFlag {
 		usage()
 	}
 
+	if *today {
+		n = 1
+	}
+
+	if *week {
+		n = 7
+	}
+
 	// Read / Search
 	// TODO: add reading, searching notes
 
-	if *n > 0 {
-		showLastDays(*n)
+	// show jots by last N number of days
+	if n > 0 {
+		if editFlag {
+			if n > 1 {
+				errlog.Fatalln("Editing multiple files at once is not yet supported.")
+			}
+			file, _ := getFilepathDate(now)
+			openInEditor(file, nil)
+		}
+		showLastDays(n)
 		os.Exit(0)
 	}
 
-	if *dd != "" {
-		dt, err := time.Parse("2006-01-02", *dd)
+	// show jots by date
+	if *ds != "" {
+		dt, err := time.Parse("2006-01-02", *ds)
 		if err != nil {
 			errlog.Fatalln("Error parsing date, try format yyyy-mm-dd", err)
 		}
-		showFileDate(dt)
+		if editFlag {
+			file, _ := getFilepathDate(dt)
+			openInEditor(file, nil)
+		} else {
+			showFileDate(dt)
+		}
 		os.Exit(0)
 	}
 
@@ -96,20 +121,11 @@ func main() {
 
 	// open file in editor
 	var editorArgs []string
-
 	if !editFlag {
 		writeFile(file, "")                           // call writeFile which creates/appends timestamp
 		editorArgs = append(editorArgs, "+normal G$") // position at end of file open cursor
 	}
-
-	// TODO: use env var EDITOR
-	// "+" for vim positions cursor on last line
-	editorArgs = append(editorArgs, file)
-	cmd := exec.Command("vim", editorArgs...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-
+	openInEditor(file, editorArgs)
 }
 
 // Show Last N Days of Jots
@@ -141,13 +157,18 @@ func showFileDate(dt time.Time) {
 				fmt.Println("")
 				prevBlank = false
 			}
-			fmt.Println(chalk.Yellow(line))
+			if noColor {
+				fmt.Println(line)
+			} else {
+				fmt.Println(chalk.Yellow(line))
+			}
+
 		} else {
-			if prevBlank {
+			if prevBlank { // if prevBlank still here write it
 				fmt.Println("|")
 				prevBlank = false
 			}
-			if line == "" {
+			if line == "" { // set as prevBlank with no output
 				prevBlank = true
 			} else {
 				prevBlank = false
@@ -155,6 +176,16 @@ func showFileDate(dt time.Time) {
 			}
 		}
 	}
+}
+
+func openInEditor(file string, args []string) {
+	// TODO: use env var EDITOR
+	// "+" for vim positions cursor on last line
+	args = append(args, file)
+	cmd := exec.Command("vim", args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 // Write Jot to File
