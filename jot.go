@@ -196,7 +196,7 @@ func writeFile(filename, text string) {
 		text = "\n" + timestamp + " :: " + text
 	}
 
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		errlog.Fatalln("Error opening file to append:", err)
 	}
