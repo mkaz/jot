@@ -32,6 +32,8 @@ var n int
 var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
+var jotsdir string
+var template string
 
 func main() {
 	errlog = log.New(os.Stderr, "", 0)
@@ -46,10 +48,23 @@ func main() {
 	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
 	var week = flag.Bool("week", false, "Show last week, alias -n 7")
+	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
 
 	if helpFlag {
 		usage()
+	}
+
+	// TODO: config for jots dir
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jotsdir = filepath.Join(usr.HomeDir, "Documents", "jots")
+	// check if directories exists
+	if _, err := os.Stat(jotsdir); os.IsNotExist(err) {
+		errlog.Fatalln("Base directory does not exist", jotsdir)
 	}
 
 	if *today {
@@ -122,7 +137,16 @@ func main() {
 	// open file in editor
 	var editorArgs []string
 	if !editFlag {
-		writeFile(file, "")                           // call writeFile which creates/appends timestamp
+		tpl := ""
+		if template != "" {
+			// attempt to read in template
+			templateFile := filepath.Join(jotsdir, "tmpl"+template+".txt")
+			content, err := ioutil.ReadFile(templateFile)
+			if err == nil {
+				tpl = string(content)
+			}
+		}
+		writeFile(file, tpl)                          // call writeFile which creates/appends timestamp
 		editorArgs = append(editorArgs, "+normal G$") // position at end of file open cursor
 	}
 	openInEditor(file, editorArgs)
@@ -209,20 +233,9 @@ func writeFile(filename, text string) {
 
 // Determine file to edit by date
 func getFilepathDate(dt time.Time) (filename, dir string) {
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// check if directories exists
-	// TODO: config for base directory
-	var base = filepath.Join(usr.HomeDir, "Documents", "jots")
-	if _, err := os.Stat(base); os.IsNotExist(err) {
-		errlog.Fatalln("Base directory: ~/Documents/jots/ does not exist")
-	}
 
 	// build directory from date
-	dir = filepath.Join(base, dt.Format("2006"), dt.Format("01"))
+	dir = filepath.Join(jotsdir, dt.Format("2006"), dt.Format("01"))
 
 	// build filename from date
 	filename = "jot-" + dt.Format("2006-01-02") + ".txt"
