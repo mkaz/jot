@@ -86,8 +86,9 @@ func main() {
 			}
 			file, _ := getFilepathDate(now)
 			openInEditor(file, nil)
+		} else {
+			showLastDays(n)
 		}
-		showLastDays(n)
 		os.Exit(0)
 	}
 
