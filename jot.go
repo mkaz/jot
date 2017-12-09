@@ -7,25 +7,20 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
-	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
-	chalk "github.com/danielchatfield/go-chalk"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
 // globals
-var helpFlag bool
 var editFlag bool
 var noColor bool
 var n int
@@ -41,30 +36,27 @@ func main() {
 	tsRe = regexp.MustCompile(`[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+[APM]+ ::.*`)
 
 	// parse command-line parameters
-	flag.BoolVar(&helpFlag, "help", false, "Display Help")
+	var helpFlag = flag.Bool("help", false, "Display Help")
+	var versionFlag = flag.Bool("version", false, "Display version")
 	flag.BoolVar(&editFlag, "edit", false, "Edit flag, suppresses timestamp")
 	flag.BoolVar(&noColor, "nocolor", false, "Use to disable colors")
+
+	// date arguments
 	flag.IntVar(&n, "n", 0, "Last N days to show")
 	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
 	var week = flag.Bool("week", false, "Show last week, alias -n 7")
+
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
 
-	if helpFlag {
+	if *helpFlag {
 		usage()
 	}
 
-	// TODO: config for jots dir
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jotsdir = filepath.Join(usr.HomeDir, "Documents", "jots")
-	// check if directories exists
-	if _, err := os.Stat(jotsdir); os.IsNotExist(err) {
-		errlog.Fatalln("Base directory does not exist", jotsdir)
+	if *versionFlag {
+		fmt.Println("jot v0.2")
+		os.Exit(0)
 	}
 
 	if *today {
@@ -75,8 +67,12 @@ func main() {
 		n = 7
 	}
 
+	// retrieve the base jots directory
+	jotsdir = getJotsDirectory()
+
+	// --------------------------------------------------
 	// Read / Search
-	// TODO: add reading, searching notes
+	// --------------------------------------------------
 
 	// show jots by last N number of days
 	if n > 0 {
@@ -107,8 +103,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	// --------------------------------------------------
 	// Writing Jot
-	// TODO: templates
+	// --------------------------------------------------
 
 	// File: `${ jotsdir }/2017/12/jot-2017-12-06.txt`
 	file, dir := getFilepathDate(now)
@@ -137,6 +134,8 @@ func main() {
 
 	// open file in editor
 	var editorArgs []string
+	// check for edit flag, if editing we dont need
+	// the template, or editor args to move to end
 	if !editFlag {
 		tpl := ""
 		if template != "" {
@@ -153,101 +152,9 @@ func main() {
 	openInEditor(file, editorArgs)
 }
 
-// Show Last N Days of Jots
-func showLastDays(n int) {
-	n = n - 1 // we want to include today
-	for n >= 0 {
-		d := now.AddDate(0, 0, -1*n)
-		showFileDate(d)
-		n--
-	}
-}
-
-// Display a Jot by File date
-func showFileDate(dt time.Time) {
-	prevBlank := false
-
-	fn, _ := getFilepathDate(dt)
-	f, err := os.Open(fn)
-	if err != nil {
-		return
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if tsRe.MatchString(line) {
-			if prevBlank { // add empty line above date line
-				fmt.Println("")
-				prevBlank = false
-			}
-			if noColor {
-				fmt.Println(line)
-			} else {
-				fmt.Println(chalk.Yellow(line))
-			}
-
-		} else {
-			if prevBlank { // if prevBlank still here write it
-				fmt.Println("|")
-				prevBlank = false
-			}
-			if line == "" { // set as prevBlank with no output
-				prevBlank = true
-			} else {
-				prevBlank = false
-				fmt.Println("| " + line)
-			}
-		}
-	}
-}
-
-func openInEditor(file string, args []string) {
-	// TODO: use env var EDITOR
-	// "+" for vim positions cursor on last line
-	args = append(args, file)
-	cmd := exec.Command("vim", args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-}
-
-// Write Jot to File
-func writeFile(filename, text string) {
-	if !editFlag { // append timestamp
-		// TODO: config for timestamp date string
-		var timestamp = now.Format("2006-01-02 3:04PM")
-		text = "\n" + timestamp + " :: " + text
-	}
-
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		errlog.Fatalln("Error opening file to append:", err)
-	}
-	defer f.Close()
-
-	if _, err = f.WriteString(text); err != nil {
-		errlog.Fatalln("Error writing file:", err)
-	}
-}
-
-// Determine file to edit by date
-func getFilepathDate(dt time.Time) (filename, dir string) {
-
-	// build directory from date
-	dir = filepath.Join(jotsdir, dt.Format("2006"), dt.Format("01"))
-
-	// build filename from date
-	filename = "jot-" + dt.Format("2006-01-02") + ".txt"
-	var file = filepath.Join(dir, filename)
-
-	return file, dir
-}
-
 // Display Usage
 func usage() {
-	fmt.Println("usage: jot [-help]\n")
+	fmt.Println("usage: jot [args] [note]\n")
 	fmt.Println("Arguments:")
 	flag.PrintDefaults()
 	os.Exit(0)
