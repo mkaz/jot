@@ -57,7 +57,7 @@ $ jot --date 2017-10-15
 #### Editing Jots
 
 Edit today's note
-````
+```
 $ jot --today --edit
 ```
 
