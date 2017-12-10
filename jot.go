@@ -46,6 +46,8 @@ func main() {
 	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
 	var week = flag.Bool("week", false, "Show last week, alias -n 7")
+	var from = flag.String("from", "", "Show notes from date yyyy-mm-dd")
+	var to = flag.String("to", "", "Show notes to date yyyy-mm-dd")
 
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
@@ -88,7 +90,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// show jots by date
+	// show jots for specific date
 	if *ds != "" {
 		dt, err := time.Parse("2006-01-02", *ds)
 		if err != nil {
@@ -99,6 +101,28 @@ func main() {
 			openInEditor(file, nil)
 		} else {
 			showFileDate(dt)
+		}
+		os.Exit(0)
+	}
+
+	if *from != "" {
+		fdt, err := time.Parse("2006-01-02 15:04", *from+" 00:00")
+		if err != nil {
+			errlog.Fatalln("Error parsing from date, try format yyyy-mm-dd", err)
+		}
+
+		// loop to to-date
+		tdt := now
+		if *to != "" {
+			tdt, err = time.Parse("2006-01-02 15:04", *to+" 23:59")
+			if err != nil {
+				errlog.Fatalln("Error parse to date, try format yyyy-mm-dd", err)
+			}
+		}
+
+		for fdt.Before(tdt) {
+			showFileDate(fdt)
+			fdt = fdt.Add(time.Hour * 24)
 		}
 		os.Exit(0)
 	}
