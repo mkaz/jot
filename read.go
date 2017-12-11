@@ -52,11 +52,6 @@ func showFileByPath(fn string) {
 	}
 }
 
-func showSearchFor(term string) {
-	fmt.Println("Searching for: ", term)
-	filepath.Walk(jotsdir, searchFiles(term))
-}
-
 func searchFiles(term string) filepath.WalkFunc {
 	return func(fn string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -73,7 +68,15 @@ func searchFiles(term string) filepath.WalkFunc {
 					// display note with term
 					for _, note := range notes {
 						if strings.Contains(note, term) {
-							fmt.Println(note)
+							// highlight search term
+							words := strings.Split(note, " ")
+							for _, word := range words {
+								if word == term {
+									fmt.Print(chalk.Red(word) + " ")
+								} else {
+									fmt.Print(word + " ")
+								}
+							}
 						}
 					}
 				}
