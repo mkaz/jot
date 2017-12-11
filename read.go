@@ -86,10 +86,36 @@ func searchFiles(term string) filepath.WalkFunc {
 			if strings.Contains(fn, "jot-") && strings.Contains(fn, ".txt") {
 				data, _ := ioutil.ReadFile(fn)
 				if strings.Contains(string(data), term) {
-					showFileByPath(fn)
+					// parse all data into individual notes
+					notes := parseDayToNotes(string(data))
+
+					// display note with term
+					for _, note := range notes {
+						if strings.Contains(note, term) {
+							fmt.Println(note)
+						}
+					}
 				}
 			}
 		}
 		return nil
 	}
+}
+
+func parseDayToNotes(str string) (notes []string) {
+	note := ""
+	lines := strings.Split(str, "\n")
+	for _, line := range lines {
+		if tsRe.MatchString(line) {
+			if note != "" { // append previous
+				notes = append(notes, note)
+			}
+			// start new note
+			note = line
+		} else {
+			note = note + line
+		}
+	}
+	notes = append(notes, note)
+	return notes
 }
