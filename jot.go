@@ -51,6 +51,7 @@ func main() {
 
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
+	args := flag.Args()
 
 	if *helpFlag {
 		usage()
@@ -127,6 +128,22 @@ func main() {
 		os.Exit(0)
 	}
 
+	// check if tag search, the only arguments start with @
+	if len(args) > 0 {
+		tagSearch := true
+		for _, a := range args {
+			if !strings.HasPrefix(a, "@") {
+				tagSearch = false
+			}
+		}
+		if tagSearch {
+			for _, a := range args {
+				showSearchFor(a)
+			}
+			os.Exit(0)
+		}
+	}
+
 	// --------------------------------------------------
 	// Writing Jot
 	// --------------------------------------------------
@@ -140,7 +157,6 @@ func main() {
 	}
 
 	// check if received a command-line jot
-	args := flag.Args()
 	if len(args) > 0 {
 		jot := strings.Join(args[0:], " ")
 		writeFile(file, jot)

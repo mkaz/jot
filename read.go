@@ -8,7 +8,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	chalk "github.com/danielchatfield/go-chalk"
@@ -26,9 +29,13 @@ func showLastDays(n int) {
 
 // Display a Jot by File date
 func showFileDate(dt time.Time) {
+	fn, _ := getFilepathDate(dt)
+	showFileByPath(fn)
+}
+
+func showFileByPath(fn string) {
 	prevBlank := false
 
-	fn, _ := getFilepathDate(dt)
 	f, err := os.Open(fn)
 	if err != nil {
 		return
@@ -49,7 +56,6 @@ func showFileDate(dt time.Time) {
 			} else {
 				fmt.Println(chalk.Yellow(line))
 			}
-
 		} else {
 			if prevBlank { // if prevBlank still here write it
 				fmt.Println("|")
@@ -62,5 +68,28 @@ func showFileDate(dt time.Time) {
 				fmt.Println("| " + line)
 			}
 		}
+	}
+}
+
+func showSearchFor(term string) {
+	fmt.Println("Searching for: ", term)
+	filepath.Walk(jotsdir, searchFiles(term))
+}
+
+func searchFiles(term string) filepath.WalkFunc {
+	return func(fn string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !fi.IsDir() {
+			if strings.Contains(fn, "jot-") && strings.Contains(fn, ".txt") {
+				data, _ := ioutil.ReadFile(fn)
+				if strings.Contains(string(data), term) {
+					showFileByPath(fn)
+				}
+			}
+		}
+		return nil
 	}
 }
