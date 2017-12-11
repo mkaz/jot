@@ -49,6 +49,7 @@ func main() {
 	var from = flag.String("from", "", "Show notes from date yyyy-mm-dd")
 	var to = flag.String("to", "", "Show notes to date yyyy-mm-dd")
 
+	var search = flag.String("s", "", "Search for term")
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
 	args := flag.Args()
@@ -125,6 +126,11 @@ func main() {
 			showFileDate(fdt)
 			fdt = fdt.Add(time.Hour * 24)
 		}
+		os.Exit(0)
+	}
+
+	if *search != "" {
+		filepath.Walk(jotsdir, searchFiles(*search))
 		os.Exit(0)
 	}
 
