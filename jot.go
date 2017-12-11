@@ -138,7 +138,7 @@ func main() {
 		}
 		if tagSearch {
 			for _, a := range args {
-				showSearchFor(a)
+				filepath.Walk(jotsdir, searchFiles(a))
 			}
 			os.Exit(0)
 		}

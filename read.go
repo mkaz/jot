@@ -6,7 +6,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -34,40 +33,22 @@ func showFileDate(dt time.Time) {
 }
 
 func showFileByPath(fn string) {
-	prevBlank := false
-
-	f, err := os.Open(fn)
+	data, err := ioutil.ReadFile(fn)
 	if err != nil {
 		return
 	}
-	defer f.Close()
 
-	// walk through file line by line, so can add formating
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if tsRe.MatchString(line) {
-			if prevBlank { // add empty line above date line
-				fmt.Println("")
-				prevBlank = false
-			}
-			if noColor {
-				fmt.Println(line)
-			} else {
+	notes := parseDayToNotes(string(data))
+	for _, note := range notes {
+		lines := strings.Split(note, "\n")
+		for idx, line := range lines {
+			if idx == 0 {
 				fmt.Println(chalk.Yellow(line))
-			}
-		} else {
-			if prevBlank { // if prevBlank still here write it
-				fmt.Println("|")
-				prevBlank = false
-			}
-			if line == "" { // set as prevBlank with no output
-				prevBlank = true
 			} else {
-				prevBlank = false
 				fmt.Println("| " + line)
 			}
 		}
+		fmt.Println()
 	}
 }
 
@@ -108,14 +89,14 @@ func parseDayToNotes(str string) (notes []string) {
 	for _, line := range lines {
 		if tsRe.MatchString(line) {
 			if note != "" { // append previous
-				notes = append(notes, note)
+				notes = append(notes, strings.Trim(note, "\n"))
 			}
 			// start new note
-			note = line
+			note = line + "\n"
 		} else {
-			note = note + line
+			note = note + line + "\n"
 		}
 	}
-	notes = append(notes, note)
+	notes = append(notes, strings.Trim(note, "\n"))
 	return notes
 }
