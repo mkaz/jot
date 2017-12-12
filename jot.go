@@ -28,6 +28,7 @@ var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
 var jotsdir string
+var files []string
 var template string
 
 func main() {
@@ -73,6 +74,7 @@ func main() {
 
 	// retrieve the base jots directory
 	jotsdir = getJotsDirectory()
+	files = getJotFiles()
 
 	// --------------------------------------------------
 	// Read / Search
@@ -130,7 +132,7 @@ func main() {
 	}
 
 	if *search != "" {
-		filepath.Walk(jotsdir, searchFiles(*search))
+		searchFiles(*search)
 		os.Exit(0)
 	}
 
@@ -144,7 +146,7 @@ func main() {
 		}
 		if tagSearch {
 			for _, a := range args {
-				filepath.Walk(jotsdir, searchFiles(a))
+				searchFiles(a)
 			}
 			os.Exit(0)
 		}

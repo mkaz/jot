@@ -8,8 +8,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -52,37 +50,28 @@ func showFileByPath(fn string) {
 	}
 }
 
-func searchFiles(term string) filepath.WalkFunc {
-	return func(fn string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
+func searchFiles(term string) {
+	for _, fn := range files {
+		data, _ := ioutil.ReadFile(fn)
+		if strings.Contains(string(data), term) {
+			// parse all data into individual notes
+			notes := parseDayToNotes(string(data))
 
-		if !fi.IsDir() {
-			if strings.Contains(fn, "jot-") && strings.Contains(fn, ".txt") {
-				data, _ := ioutil.ReadFile(fn)
-				if strings.Contains(string(data), term) {
-					// parse all data into individual notes
-					notes := parseDayToNotes(string(data))
-
-					// display note with term
-					for _, note := range notes {
-						if strings.Contains(note, term) {
-							// highlight search term
-							words := strings.Split(note, " ")
-							for _, word := range words {
-								if word == term {
-									fmt.Print(chalk.Red(word) + " ")
-								} else {
-									fmt.Print(word + " ")
-								}
-							}
+			// display note with term
+			for _, note := range notes {
+				if strings.Contains(note, term) {
+					// highlight search term
+					words := strings.Split(note, " ")
+					for _, word := range words {
+						if word == term {
+							fmt.Print(chalk.Red(word) + " ")
+						} else {
+							fmt.Print(word + " ")
 						}
 					}
 				}
 			}
 		}
-		return nil
 	}
 }
 
