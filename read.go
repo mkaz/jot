@@ -6,9 +6,9 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"io/ioutil"
+	"strings"
 	"time"
 
 	chalk "github.com/danielchatfield/go-chalk"
@@ -26,41 +26,69 @@ func showLastDays(n int) {
 
 // Display a Jot by File date
 func showFileDate(dt time.Time) {
-	prevBlank := false
-
 	fn, _ := getFilepathDate(dt)
-	f, err := os.Open(fn)
+	showFileByPath(fn)
+}
+
+func showFileByPath(fn string) {
+	data, err := ioutil.ReadFile(fn)
 	if err != nil {
 		return
 	}
-	defer f.Close()
 
-	// walk through file line by line, so can add formating
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if tsRe.MatchString(line) {
-			if prevBlank { // add empty line above date line
-				fmt.Println("")
-				prevBlank = false
-			}
-			if noColor {
-				fmt.Println(line)
-			} else {
+	notes := parseDayToNotes(string(data))
+	for _, note := range notes {
+		lines := strings.Split(note, "\n")
+		for idx, line := range lines {
+			if idx == 0 {
 				fmt.Println(chalk.Yellow(line))
-			}
-
-		} else {
-			if prevBlank { // if prevBlank still here write it
-				fmt.Println("|")
-				prevBlank = false
-			}
-			if line == "" { // set as prevBlank with no output
-				prevBlank = true
 			} else {
-				prevBlank = false
 				fmt.Println("| " + line)
 			}
 		}
+		fmt.Println()
 	}
+}
+
+func searchFiles(term string) {
+	for _, fn := range files {
+		data, _ := ioutil.ReadFile(fn)
+		if strings.Contains(string(data), term) {
+			// parse all data into individual notes
+			notes := parseDayToNotes(string(data))
+
+			// display note with term
+			for _, note := range notes {
+				if strings.Contains(note, term) {
+					// highlight search term
+					words := strings.Split(note, " ")
+					for _, word := range words {
+						if word == term {
+							fmt.Print(chalk.Red(word) + " ")
+						} else {
+							fmt.Print(word + " ")
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func parseDayToNotes(str string) (notes []string) {
+	note := ""
+	lines := strings.Split(str, "\n")
+	for _, line := range lines {
+		if tsRe.MatchString(line) {
+			if note != "" { // append previous
+				notes = append(notes, strings.Trim(note, "\n"))
+			}
+			// start new note
+			note = line + "\n"
+		} else {
+			note = note + line + "\n"
+		}
+	}
+	notes = append(notes, strings.Trim(note, "\n"))
+	return notes
 }

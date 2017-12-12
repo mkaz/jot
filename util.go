@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -43,4 +44,16 @@ func getJotsDirectory() (dir string) {
 		errlog.Fatalln("Base directory does not exist", jotsdir)
 	}
 	return dir
+}
+
+func getJotFiles() (fa []string) {
+	filepath.Walk(jotsdir, func(path string, fi os.FileInfo, err error) error {
+		if !fi.IsDir() {
+			if strings.Contains(path, "jot-") && strings.Contains(path, ".txt") {
+				fa = append(fa, path)
+			}
+		}
+		return nil
+	})
+	return fa
 }

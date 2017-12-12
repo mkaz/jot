@@ -28,6 +28,7 @@ var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
 var jotsdir string
+var files []string
 var template string
 
 func main() {
@@ -49,8 +50,10 @@ func main() {
 	var from = flag.String("from", "", "Show notes from date yyyy-mm-dd")
 	var to = flag.String("to", "", "Show notes to date yyyy-mm-dd")
 
+	var search = flag.String("s", "", "Search for term")
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
+	args := flag.Args()
 
 	if *helpFlag {
 		usage()
@@ -71,6 +74,7 @@ func main() {
 
 	// retrieve the base jots directory
 	jotsdir = getJotsDirectory()
+	files = getJotFiles()
 
 	// --------------------------------------------------
 	// Read / Search
@@ -127,6 +131,27 @@ func main() {
 		os.Exit(0)
 	}
 
+	if *search != "" {
+		searchFiles(*search)
+		os.Exit(0)
+	}
+
+	// check if tag search, the only arguments start with @
+	if len(args) > 0 {
+		tagSearch := true
+		for _, a := range args {
+			if !strings.HasPrefix(a, "@") {
+				tagSearch = false
+			}
+		}
+		if tagSearch {
+			for _, a := range args {
+				searchFiles(a)
+			}
+			os.Exit(0)
+		}
+	}
+
 	// --------------------------------------------------
 	// Writing Jot
 	// --------------------------------------------------
@@ -140,7 +165,6 @@ func main() {
 	}
 
 	// check if received a command-line jot
-	args := flag.Args()
 	if len(args) > 0 {
 		jot := strings.Join(args[0:], " ")
 		writeFile(file, jot)
