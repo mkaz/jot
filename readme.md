@@ -15,6 +15,11 @@ Another key feature was the ability to use templates, so you can open a
 note with a prefilled template. Jot supports any number of user defined
 templates.
 
+### Install
+
+* Download the latest version [from the Jot releases page](https://github.com/mkaz/jot/releases)
+
+* If you have a golang environment, you can build:  `go get github.com/mkaz/jot`
 
 
 ### Usage
