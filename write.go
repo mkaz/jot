@@ -23,8 +23,7 @@ func openInEditor(file string, args []string) {
 // Write Jot to File
 func writeFile(filename, text string) {
 	if !editFlag { // append timestamp
-		// TODO: config for timestamp date string
-		var timestamp = now.Format("2006-01-02 3:04PM")
+		var timestamp = now.Format(conf.Timestamp)
 		text = "\n" + timestamp + " :: " + text
 	}
 

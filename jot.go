@@ -27,9 +27,15 @@ var n int
 var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
-var jotsdir string
 var files []string
 var template string
+
+type Config struct {
+	Jotsdir   string
+	Timestamp string
+}
+
+var conf Config
 
 func main() {
 	errlog = log.New(os.Stderr, "", 0)
@@ -60,9 +66,12 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("jot v0.2")
+		fmt.Println("jot v0.3")
 		os.Exit(0)
 	}
+
+	// read in config file if exists
+	conf = getJotsConfig()
 
 	if *today {
 		n = 1
@@ -73,7 +82,6 @@ func main() {
 	}
 
 	// retrieve the base jots directory
-	jotsdir = getJotsDirectory()
 	files = getJotFiles()
 
 	// --------------------------------------------------
@@ -188,7 +196,7 @@ func main() {
 		tpl := ""
 		if template != "" {
 			// attempt to read in template
-			templateFile := filepath.Join(jotsdir, "tmpl"+template+".txt")
+			templateFile := filepath.Join(conf.Jotsdir, "tmpl"+template+".txt")
 			content, err := ioutil.ReadFile(templateFile)
 			if err == nil {
 				tpl = string(content)
