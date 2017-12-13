@@ -99,6 +99,19 @@ I use the following template when I am trying to debug a tricky problem.
 
 Jot creates a single text file a day, `jot-2017-01-06.txt` organizing them in monthly and yearly folders. By default it stores them in `~/Documents/jots/` that directory must already exist or it will give a warning.
 
+Jot will look for a config file `.jotrc` in your home directory in TOML format.
+
+```
+# Jot config file
+
+# base directory that all jots are stored
+jotsdir = "~/Documents/jots"
+
+# golang timestamp format for note delimiter
+# See: https://golang.org/pkg/time/
+timestamp = "2006-01-02 3:04PM"
+```
+
 
 ### Errata
 
