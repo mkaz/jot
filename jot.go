@@ -53,6 +53,7 @@ func main() {
 	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
 	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
 	var week = flag.Bool("week", false, "Show last week, alias -n 7")
+	var yesterday = flag.Bool("yesterday", false, "Set date to yesterday")
 	var from = flag.String("from", "", "Show notes from date yyyy-mm-dd")
 	var to = flag.String("to", "", "Show notes to date yyyy-mm-dd")
 
@@ -79,6 +80,10 @@ func main() {
 
 	if *week {
 		n = 7
+	}
+
+	if *yesterday {
+		*ds = now.AddDate(0, 0, -1).Format("2006-01-02")
 	}
 
 	// retrieve the base jots directory
