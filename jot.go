@@ -67,7 +67,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("jot v0.3")
+		fmt.Println("jot v0.4")
 		os.Exit(0)
 	}
 
