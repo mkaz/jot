@@ -15,13 +15,39 @@ import (
 )
 
 // Show Last N Days of Jots
-func showLastDays(n int) {
+func filterFilesByCount(fs []string, n int) (files []string) {
 	n = n - 1 // we want to include today
 	for n >= 0 {
-		d := now.AddDate(0, 0, -1*n)
-		showFileDate(d)
+		dt := now.AddDate(0, 0, -1*n)
+		fn, _ := getFilepathDate(dt)
+		if elemExists(fn, fs) {
+			files = append(files, fn)
+		}
 		n--
 	}
+	return files
+}
+
+// Filter file list return files from date forward
+func filterFilesFromDate(fs []string, dt time.Time) (files []string) {
+	for _, f := range fs {
+		d := getDateFromFile(f, "23:59")
+		if d.After(dt) {
+			files = append(files, f)
+		}
+	}
+	return files
+}
+
+// Filter file list return files to date backward
+func filterFilesToDate(fs []string, dt time.Time) (files []string) {
+	for _, f := range fs {
+		d := getDateFromFile(f, "00:00")
+		if d.Before(dt) {
+			files = append(files, f)
+		}
+	}
+	return files
 }
 
 // Display a Jot by File date

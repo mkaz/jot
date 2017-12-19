@@ -88,6 +88,7 @@ func main() {
 
 	// retrieve the base jots directory
 	files = getJotFiles()
+	showFiles := false
 
 	// --------------------------------------------------
 	// Read / Search
@@ -101,10 +102,11 @@ func main() {
 			}
 			file, _ := getFilepathDate(now)
 			openInEditor(file, nil)
-		} else {
-			showLastDays(n)
+			os.Exit(0)
 		}
-		os.Exit(0)
+		// filter file list2
+		files = filterFilesByCount(files, n)
+		showFiles = true
 	}
 
 	// show jots for specific date
@@ -127,21 +129,19 @@ func main() {
 		if err != nil {
 			errlog.Fatalln("Error parsing from date, try format yyyy-mm-dd", err)
 		}
+		// filter files from
+		files = filterFilesFromDate(files, fdt)
+		showFiles = true
+	}
 
-		// loop to to-date
-		tdt := now
-		if *to != "" {
-			tdt, err = time.Parse("2006-01-02 15:04", *to+" 23:59")
-			if err != nil {
-				errlog.Fatalln("Error parse to date, try format yyyy-mm-dd", err)
-			}
+	if *to != "" {
+		tdt, err := time.Parse("2006-01-02 15:04", *to+" 23:59")
+		if err != nil {
+			errlog.Fatalln("Error parse to date, try format yyyy-mm-dd", err)
 		}
-
-		for fdt.Before(tdt) {
-			showFileDate(fdt)
-			fdt = fdt.Add(time.Hour * 24)
-		}
-		os.Exit(0)
+		// filter files to
+		files = filterFilesToDate(files, tdt)
+		showFiles = true
 	}
 
 	if *search != "" {
@@ -163,6 +163,13 @@ func main() {
 			}
 			os.Exit(0)
 		}
+	}
+
+	if showFiles {
+		for _, f := range files {
+			showFileByPath(f)
+		}
+		os.Exit(0)
 	}
 
 	// --------------------------------------------------

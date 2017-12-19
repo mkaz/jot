@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -27,6 +28,14 @@ func getFilepathDate(dt time.Time) (filename, dir string) {
 	var file = filepath.Join(dir, filename)
 
 	return file, dir
+}
+
+// Converts file path to date
+func getDateFromFile(s string, secs string) (dt time.Time) {
+	re, _ := regexp.Compile("[0-9]+-[0-9][0-9]+-[0-9]+")
+	dts := re.FindString(s)
+	dt, _ = time.Parse("2006-01-02 15:04", dts+" "+secs)
+	return dt
 }
 
 func getJotsConfig() (conf Config) {
@@ -68,4 +77,13 @@ func getJotFiles() (fa []string) {
 		return nil
 	})
 	return fa
+}
+
+func elemExists(s string, a []string) bool {
+	for _, v := range a {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }
