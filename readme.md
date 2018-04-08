@@ -124,5 +124,5 @@ Jot is open source and free to use, it is licensed under a <a rel="license" href
 
 I welcome any contributions. Please feel free to open an issues to report a bug, submit a feature. Pull requests are also welcome.
 
-An [mkaz](https://mkaz.tech/) contrivance.
+An [mkaz](https://mkaz.blog/) contrivance.
 
