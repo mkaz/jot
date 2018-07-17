@@ -105,13 +105,14 @@ Jot will look for a config file `.jotrc` in your home directory in TOML format.
 # Jot config file
 
 # base directory that all jots are stored
-jotsdir = "~/Documents/jots"
+jotsdir = '~/Documents/jots'
 
 # golang timestamp format for note delimiter
 # See: https://golang.org/pkg/time/
-timestamp = "2006-01-02 3:04PM"
+timestamp = '2006-01-02 3:04PM'
 ```
 
+Note: For Windows, use single quotes for the directory config, otherwise the `\` seperator will be considered an escape and considered invalid.
 
 ### Errata
 
