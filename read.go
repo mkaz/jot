@@ -97,6 +97,7 @@ func searchFiles(term string) {
 					}
 				}
 			}
+			fmt.Println("\n")
 		}
 	}
 }
