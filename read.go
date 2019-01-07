@@ -86,11 +86,12 @@ func searchFiles(term string) {
 			// display note with term
 			for _, note := range notes {
 				if strings.Contains(note, term) {
+					fmt.Println(chalk.Yellow("-------------------------------------------------"))
 					// highlight search term
 					words := strings.Split(note, " ")
 					for _, word := range words {
 						if word == term {
-							fmt.Print(chalk.Red(word) + " ")
+							fmt.Print(chalk.Green(word) + " ")
 						} else {
 							fmt.Print(word + " ")
 						}
