@@ -97,8 +97,8 @@ func searchFiles(term string) {
 						}
 					}
 				}
+				fmt.Println("\n")
 			}
-			fmt.Println("\n")
 		}
 	}
 }
@@ -117,6 +117,9 @@ func parseDayToNotes(str string) (notes []string) {
 			note = note + line + "\n"
 		}
 	}
-	notes = append(notes, strings.Trim(note, "\n"))
+	note = strings.TrimSpace(note)
+	if note != "" {
+		notes = append(notes, note)
+	}
 	return notes
 }

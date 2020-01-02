@@ -20,11 +20,16 @@ func openInEditor(file string, args []string) {
 	cmd.Run()
 }
 
-// Write Jot to File
+// writeFile writes text out to file
 func writeFile(filename, text string) {
 	if !editFlag { // append timestamp
 		var timestamp = now.Format(conf.Timestamp)
 		text = "\n" + timestamp + " :: " + text
+	}
+
+	// dont write anything if empty
+	if text == "" {
+		return
 	}
 
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
