@@ -50,7 +50,7 @@ func filterFilesToDate(fs []string, dt time.Time) (files []string) {
 	return files
 }
 
-// Display a Jot by File date
+// showFileDate displays a Jot by file date
 func showFileDate(dt time.Time) {
 	fn, _ := getFilepathDate(dt)
 	showFileByPath(fn)
@@ -64,39 +64,17 @@ func showFileByPath(fn string) {
 
 	notes := parseDayToNotes(string(data))
 	for _, note := range notes {
-		lines := strings.Split(note, "\n")
-		for idx, line := range lines {
-			if idx == 0 {
-				fmt.Println(chalk.Yellow(line))
-			} else {
-				fmt.Println("| " + line)
-			}
-		}
-		fmt.Println()
+		displayNote(note, "")
 	}
 }
 
 func searchFiles(term string) {
 	for _, fn := range files {
 		data, _ := ioutil.ReadFile(fn)
-		if strings.Contains(string(data), term) {
-			// parse all data into individual notes
-			notes := parseDayToNotes(string(data))
-
-			// display note with term
-			for _, note := range notes {
-				if strings.Contains(note, term) {
-					fmt.Println(chalk.Yellow("-------------------------------------------------"))
-					// highlight search term
-					words := strings.Split(note, " ")
-					for _, word := range words {
-						if word == term {
-							fmt.Print(chalk.Green(word) + " ")
-						} else {
-							fmt.Print(word + " ")
-						}
-					}
-				}
+		notes := parseDayToNotes(string(data))
+		for _, note := range notes {
+			if strings.Contains(strings.ToLower(note), strings.ToLower(term)) {
+				displayNote(note, term)
 				fmt.Println("\n")
 			}
 		}
@@ -122,4 +100,39 @@ func parseDayToNotes(str string) (notes []string) {
 		notes = append(notes, note)
 	}
 	return notes
+}
+
+// displayNote (output note to screen)
+func displayNote(note string, term string) {
+	lines := strings.Split(note, "\n")
+	for idx, line := range lines {
+		if idx == 0 {
+			fmt.Println(chalk.Cyan(line))
+		} else {
+			line = highlightWord(line, term)
+			fmt.Println("| " + line)
+		}
+	}
+}
+
+// highlightWord looks for term in str and adds color code
+func highlightWord(str string, term string) (rtn string) {
+	if term == "" {
+		return str
+	}
+
+	if !strings.Contains(str, term) {
+		return str
+	}
+
+	words := strings.Fields(str)
+	for _, word := range words {
+		if word == term {
+			rtn += chalk.Magenta(word) + " "
+		} else {
+			rtn += word + " "
+		}
+	}
+
+	return strings.TrimSpace(rtn)
 }
