@@ -1,4 +1,5 @@
 .DS_Store
-jot
 .vscode
 jot-*.tar.gz
+jot
+!jot/
