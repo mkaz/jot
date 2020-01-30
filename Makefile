@@ -10,7 +10,6 @@ MAKEFLAGS += --no-builtin-rules
 build:
 > echo "Building Jot..."
 > go build ./cmd/jot
-> cp jot $(HOME)/bin/
 .PHONY: build
 
 multiarch: build

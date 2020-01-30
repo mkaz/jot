@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/marcusolsson/tui-go"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -29,6 +30,7 @@ var tsRe *regexp.Regexp
 var errlog *log.Logger
 var files []string
 var template string
+var args []string
 
 type Config struct {
 	Jotsdir   string
@@ -50,42 +52,49 @@ func main() {
 
 	// date arguments
 	flag.IntVar(&n, "n", 0, "Last N days to show")
-	var ds = flag.String("date", "", "Show speific date yyyy-mm-dd")
-	var today = flag.Bool("today", false, "Show todays note, alias -n 1")
-	var week = flag.Bool("week", false, "Show last week, alias -n 7")
-	var yesterday = flag.Bool("yesterday", false, "Set date to yesterday")
-	var from = flag.String("from", "", "Show notes from date yyyy-mm-dd")
-	var to = flag.String("to", "", "Show notes to date yyyy-mm-dd")
-
-	var search = flag.String("s", "", "Search for term")
 	flag.StringVar(&template, "t", "", "Template name to use")
 	flag.Parse()
-	args := flag.Args()
+	args = flag.Args()
 
 	if *helpFlag {
 		usage()
 	}
 
 	if *versionFlag {
-		fmt.Println("jot v0.4.2")
+		fmt.Println("jot v0.5.0")
 		os.Exit(0)
 	}
 
 	// read in config file if exists
 	conf = getJotsConfig()
 
-	if *today {
-		n = 1
-	}
+	// TUI
 
-	if *week {
-		n = 7
-	}
+	input := tui.NewEntry()
+	input.SetFocused(true)
+	input.SetSizePolicy(tui.Expanding, tui.Maximum)
 
-	if *yesterday {
-		*ds = now.AddDate(0, 0, -1).Format("2006-01-02")
-	}
+	inputBox := tui.NewHBox(input)
+	inputBox.SetBorder(true)
+	inputBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 
+	resultBox := tui.NewVBox()
+	resultBox.SetBorder(true)
+
+	panel := tui.NewVBox(inputBox, resultBox)
+	panel.SetSizePolicy(tui.Expanding, tui.Expanding)
+
+	ui, err := tui.New(panel)
+	if err != nil {
+		panic(err)
+	}
+	ui.SetKeybinding("Esc", func() { ui.Quit() })
+	if err := ui.Run(); err != nil {
+		panic(err)
+	}
+}
+
+func cli() {
 	// retrieve the base jots directory
 	files = getJotFiles()
 	showFiles := false
@@ -107,46 +116,6 @@ func main() {
 		// filter file list2
 		files = filterFilesByCount(files, n)
 		showFiles = true
-	}
-
-	// show jots for specific date
-	if *ds != "" {
-		dt, err := time.Parse("2006-01-02", *ds)
-		if err != nil {
-			errlog.Fatalln("Error parsing date, try format yyyy-mm-dd", err)
-		}
-		if editFlag {
-			file, _ := getFilepathDate(dt)
-			openInEditor(file, nil)
-		} else {
-			showFileDate(dt)
-		}
-		os.Exit(0)
-	}
-
-	if *from != "" {
-		fdt, err := time.Parse("2006-01-02 15:04", *from+" 00:00")
-		if err != nil {
-			errlog.Fatalln("Error parsing from date, try format yyyy-mm-dd", err)
-		}
-		// filter files from
-		files = filterFilesFromDate(files, fdt)
-		showFiles = true
-	}
-
-	if *to != "" {
-		tdt, err := time.Parse("2006-01-02 15:04", *to+" 23:59")
-		if err != nil {
-			errlog.Fatalln("Error parse to date, try format yyyy-mm-dd", err)
-		}
-		// filter files to
-		files = filterFilesToDate(files, tdt)
-		showFiles = true
-	}
-
-	if *search != "" {
-		searchFiles(*search)
-		os.Exit(0)
 	}
 
 	// check if tag search, the only arguments start with @

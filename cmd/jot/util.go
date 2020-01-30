@@ -49,7 +49,7 @@ func getJotsConfig() (conf Config) {
 
 	// set default diretory if not in config
 	if conf.Jotsdir == "" {
-		conf.Jotsdir = filepath.Join(usr.HomeDir, "Documents", "jots")
+		conf.Jotsdir = filepath.Join(usr.HomeDir, "Documents", "Notes")
 	}
 
 	// fail out if directory does not exist, cant do anything
