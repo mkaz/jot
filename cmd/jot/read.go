@@ -83,17 +83,27 @@ func showFileByPath(fn string) {
 	}
 }
 
-func searchFiles(term string, files []string) {
-	for _, fn := range files {
-		data, _ := ioutil.ReadFile(fn)
-		notes := parseDayToNotes(string(data))
-		for _, note := range notes {
-			if strings.Contains(strings.ToLower(note), strings.ToLower(term)) {
-				displayNote(note, term)
-				fmt.Println("\n")
-			}
+func searchFiles(files []string, term string) (found []string) {
+
+	// case-insensitive search
+	term = strings.ToLower(term)
+
+	for _, f := range files {
+		// check match in filename
+		if strings.Contains(strings.ToLower(f), term) {
+			found = append(found, f)
+			continue
+		}
+
+		// check if match in content
+		data, _ := ioutil.ReadFile(f)
+		content := string(data)
+		if strings.Contains(strings.ToLower(content), term) {
+			found = append(found, f)
 		}
 	}
+
+	return found
 }
 
 func parseDayToNotes(str string) (notes []string) {

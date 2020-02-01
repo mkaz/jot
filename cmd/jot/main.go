@@ -36,7 +36,7 @@ type Config struct {
 }
 
 var conf Config
-var fileList *tui.Box
+var fileList *tui.List
 
 func main() {
 	errlog = log.New(os.Stderr, "", 0)
@@ -71,6 +71,8 @@ func main() {
 	files := getJotFiles()
 
 	// TUI
+	fileList = tui.NewList()
+	updateFileList(files)
 
 	input := tui.NewEntry()
 	input.SetFocused(true)
@@ -82,17 +84,19 @@ func main() {
 
 	// Perform search as typing
 	input.OnChanged(func(e *tui.Entry) {
-
+		// if more than two-chars
+		// search files
+		text := e.Text()
+		if len(text) >= 2 {
+			found := searchFiles(files, text)
+			updateFileList(found)
+		}
 	})
 
 	// Create new document onSubmit
 	input.OnSubmit(func(e *tui.Entry) {
 		// fmt.Println(?)
 	})
-
-	fileList = tui.NewVBox()
-	fileList.SetBorder(true)
-	updateFileList(files)
 
 	panel := tui.NewVBox(inputBox, fileList)
 	panel.SetSizePolicy(tui.Expanding, tui.Expanding)
@@ -108,13 +112,8 @@ func main() {
 }
 
 func updateFileList(files []string) {
-	for _, f := range files {
-		f = strings.Replace(f, conf.Jotsdir, "", -1)
-		f = strings.TrimLeft(f, "/")
-		fileList.Append(tui.NewHBox(
-			tui.NewLabel(f),
-		))
-	}
+	fileList.RemoveItems() // start fresh
+	fileList.AddItems(files...)
 }
 
 func cli() {
