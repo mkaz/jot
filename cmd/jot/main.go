@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -28,7 +27,6 @@ var n int
 var now time.Time
 var tsRe *regexp.Regexp
 var errlog *log.Logger
-var files []string
 var template string
 var args []string
 
@@ -38,6 +36,7 @@ type Config struct {
 }
 
 var conf Config
+var fileList *tui.Box
 
 func main() {
 	errlog = log.New(os.Stderr, "", 0)
@@ -68,6 +67,9 @@ func main() {
 	// read in config file if exists
 	conf = getJotsConfig()
 
+	// Read in files
+	files := getJotFiles()
+
 	// TUI
 
 	input := tui.NewEntry()
@@ -78,10 +80,21 @@ func main() {
 	inputBox.SetBorder(true)
 	inputBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 
-	resultBox := tui.NewVBox()
-	resultBox.SetBorder(true)
+	// Perform search as typing
+	input.OnChanged(func(e *tui.Entry) {
 
-	panel := tui.NewVBox(inputBox, resultBox)
+	})
+
+	// Create new document onSubmit
+	input.OnSubmit(func(e *tui.Entry) {
+		// fmt.Println(?)
+	})
+
+	fileList = tui.NewVBox()
+	fileList.SetBorder(true)
+	updateFileList(files)
+
+	panel := tui.NewVBox(inputBox, fileList)
 	panel.SetSizePolicy(tui.Expanding, tui.Expanding)
 
 	ui, err := tui.New(panel)
@@ -94,64 +107,21 @@ func main() {
 	}
 }
 
+func updateFileList(files []string) {
+	for _, f := range files {
+		f = strings.Replace(f, conf.Jotsdir, "", -1)
+		f = strings.TrimLeft(f, "/")
+		fileList.Append(tui.NewHBox(
+			tui.NewLabel(f),
+		))
+	}
+}
+
 func cli() {
-	// retrieve the base jots directory
-	files = getJotFiles()
-	showFiles := false
 
-	// --------------------------------------------------
-	// Read / Search
-	// --------------------------------------------------
-
-	// show jots by last N number of days
-	if n > 0 {
-		if editFlag {
-			if n > 1 {
-				errlog.Fatalln("Editing multiple files at once is not yet supported.")
-			}
-			file, _ := getFilepathDate(now)
-			openInEditor(file, nil)
-			os.Exit(0)
-		}
-		// filter file list2
-		files = filterFilesByCount(files, n)
-		showFiles = true
-	}
-
-	// check if tag search, the only arguments start with @
-	if len(args) > 0 {
-		tagSearch := true
-		for _, a := range args {
-			if !strings.HasPrefix(a, "@") {
-				tagSearch = false
-			}
-		}
-		if tagSearch {
-			for _, a := range args {
-				searchFiles(a)
-			}
-			os.Exit(0)
-		}
-	}
-
-	if showFiles {
-		for _, f := range files {
-			showFileByPath(f)
-		}
-		os.Exit(0)
-	}
-
-	// --------------------------------------------------
-	// Writing Jot
-	// --------------------------------------------------
-
-	// File: `${ jotsdir }/2017/12/jot-2017-12-06.txt`
-	file, dir := getFilepathDate(now)
-
-	// create directory if does not exist
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, os.ModePerm)
-	}
+	// TODO: parse command-line args and create if something
+	//      is being piped in
+	file := "/tmp/foo"
 
 	// check if received a command-line jot
 	if len(args) > 0 {
@@ -168,25 +138,6 @@ func cli() {
 		writeFile(file, string(data))
 		os.Exit(0)
 	}
-
-	// open file in editor
-	var editorArgs []string
-	// check for edit flag, if editing we dont need
-	// the template, or editor args to move to end
-	if !editFlag {
-		tpl := ""
-		if template != "" {
-			// attempt to read in template
-			templateFile := filepath.Join(conf.Jotsdir, "tmpl"+template+".txt")
-			content, err := ioutil.ReadFile(templateFile)
-			if err == nil {
-				tpl = string(content)
-			}
-		}
-		writeFile(file, tpl)                          // call writeFile which creates/appends timestamp
-		editorArgs = append(editorArgs, "+normal G$") // position at end of file open cursor
-	}
-	openInEditor(file, editorArgs)
 }
 
 // Display Usage

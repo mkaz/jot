@@ -8,11 +8,26 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	chalk "github.com/danielchatfield/go-chalk"
 )
+
+// getJotFiles - reads in all files returning an array filenames
+func getJotFiles() (fa []string) {
+	filepath.Walk(conf.Jotsdir, func(path string, fi os.FileInfo, err error) error {
+		if !fi.IsDir() {
+			if filepath.Ext(path) == ".md" || filepath.Ext(path) == ".txt" {
+				fa = append(fa, path)
+			}
+		}
+		return nil
+	})
+	return fa
+}
 
 // Show Last N Days of Jots
 func filterFilesByCount(fs []string, n int) (files []string) {
@@ -68,7 +83,7 @@ func showFileByPath(fn string) {
 	}
 }
 
-func searchFiles(term string) {
+func searchFiles(term string, files []string) {
 	for _, fn := range files {
 		data, _ := ioutil.ReadFile(fn)
 		notes := parseDayToNotes(string(data))

@@ -11,7 +11,6 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -65,18 +64,6 @@ func getJotsConfig() (conf Config) {
 	}
 
 	return conf
-}
-
-func getJotFiles() (fa []string) {
-	filepath.Walk(conf.Jotsdir, func(path string, fi os.FileInfo, err error) error {
-		if !fi.IsDir() {
-			if strings.Contains(path, "jot-") && strings.Contains(path, ".txt") {
-				fa = append(fa, path)
-			}
-		}
-		return nil
-	})
-	return fa
 }
 
 func elemExists(s string, a []string) bool {
