@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -35,7 +36,9 @@ type Config struct {
 	Timestamp string
 }
 
+var ui tui.UI
 var conf Config
+var panel *tui.Box
 var fileList *tui.List
 
 func main() {
@@ -71,7 +74,15 @@ func main() {
 	files := getJotFiles()
 
 	// TUI
+
 	fileList = tui.NewList()
+	fileList.OnItemActivated(func(l *tui.List) {
+		sel := l.SelectedItem()
+		fp := filepath.Join(conf.Jotsdir, sel)
+		openInEditor(fp, nil)
+		ui.Repaint() // doesnt work :(
+	})
+
 	updateFileList(files)
 
 	input := tui.NewEntry()
@@ -98,22 +109,35 @@ func main() {
 		// fmt.Println(?)
 	})
 
-	panel := tui.NewVBox(inputBox, fileList)
+	tui.DefaultFocusChain.Set(input, fileList)
+	panel = tui.NewVBox(inputBox, fileList)
 	panel.SetSizePolicy(tui.Expanding, tui.Expanding)
 
-	ui, err := tui.New(panel)
-	if err != nil {
-		panic(err)
-	}
+	ui, _ = tui.New(panel)
 	ui.SetKeybinding("Esc", func() { ui.Quit() })
+	ui.SetKeybinding("Tab", func() {
+		// what to do when tab
+	})
+
 	if err := ui.Run(); err != nil {
-		panic(err)
+		log.Fatalln("Error starting UI", err)
 	}
 }
 
 func updateFileList(files []string) {
+	// scrub file names for display
+	files = displayFilenames(files)
 	fileList.RemoveItems() // start fresh
 	fileList.AddItems(files...)
+}
+
+func displayFilenames(files []string) (rtn []string) {
+	for _, f := range files {
+		f = strings.Replace(f, conf.Jotsdir, "", 1)
+		f = strings.TrimLeft(f, "/")
+		rtn = append(rtn, f)
+	}
+	return rtn
 }
 
 func cli() {
