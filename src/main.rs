@@ -3,7 +3,7 @@
 use clap::{App, Arg};
 // use std::fs;
 
-use std::io::{self, Read};
+use std::io;
 
 fn main() {
     let matches = App::new("zk")
@@ -39,9 +39,16 @@ fn main() {
     // check for nothing
     // check for stdin
 
-    if matches.is_present("stdin") {
-        let mut buffer = String::new();
-        io::stdin().read_to_string(&mut buffer);
-        println!("{}", buffer);
+    if io::stdio::stdin_raw.isatty() {
+        println!("Not piped");
+    } else {
+        let mut reader = io::stdin();
+        loop {
+            match reader.read_line() {
+                Ok(txt) => println!("Read: {}", txt),
+                Err(_) => break,
+            }
+        }
     }
+    println!("Done");
 }
