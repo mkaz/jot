@@ -3,7 +3,8 @@
 use clap::{App, Arg};
 // use std::fs;
 
-use std::io;
+use atty::Stream;
+use std::io::{self, Read};
 
 fn main() {
     let matches = App::new("zk")
@@ -39,16 +40,21 @@ fn main() {
     // check for nothing
     // check for stdin
 
-    if io::stdio::stdin_raw.isatty() {
-        println!("Not piped");
+    if is_pipe() {
+        let mut buffer = String::new();
+        let mut stdin = io::stdin(); // We get `Stdin` here.
+        match stdin.read_to_string(&mut buffer) {
+            Ok(_) => println!("Read to buffer"),
+            Err(_) => println!("An error happened"),
+        };
+        println!("Buffer: {}", buffer);
     } else {
-        let mut reader = io::stdin();
-        loop {
-            match reader.read_line() {
-                Ok(txt) => println!("Read: {}", txt),
-                Err(_) => break,
-            }
-        }
+        println!("Not piped");
     }
+
     println!("Done");
+}
+
+fn is_pipe() -> bool {
+    !atty::is(Stream::Stdin)
 }
