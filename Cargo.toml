@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 atty = "0.2"
+chrono = "0.4.19"
 clap = "3.0.0-beta.2"
 
