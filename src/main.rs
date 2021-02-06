@@ -2,10 +2,10 @@
 
 use clap::{App, Arg};
 use std::fs::File;
-use std::path::Path;
-
 use std::io::prelude::*;
 use std::io::{self, Read};
+use std::path::Path;
+use std::process::Command;
 
 mod utils;
 
@@ -35,8 +35,16 @@ fn main() {
     // let config = config_data.parse::<toml::Value>().unwrap();
 
     // No View
-    // Create New File
+    // Creating New File
     let mut content = String::new();
+
+    // get new filename
+    // TODO: append to existing file
+    let filename = utils::get_new_filename();
+    let file_path = notes_path.join(filename);
+    if file_path.exists() {
+        panic!("File already exists");
+    }
 
     // get file content from pipe
     if utils::is_pipe() {
@@ -58,15 +66,21 @@ fn main() {
         };
     }
 
-    // get new filename
-    if content != "" {
-        let filename = utils::get_new_filename();
-        let file_path = notes_path.join(filename);
-
-        if file_path.exists() {
-            panic!("File already exists");
-        }
-
+    // no content open file in EDITOR
+    if content == "" {
+        // TODO: get editor command
+        match file_path.to_str() {
+            Some(s) => {
+                Command::new("vim")
+                    .arg(s)
+                    .status()
+                    .expect("Error editing in vim");
+            }
+            None => panic!("Error with file_path: {:?}", file_path),
+        };
+    }
+    // file content exists create file
+    else {
         let mut file = match File::create(&file_path) {
             Ok(file) => file,
             Err(e) => panic!("Error creating file. {}", e),
