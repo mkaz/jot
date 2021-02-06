@@ -2,10 +2,11 @@
 
 use chrono::{DateTime, Utc};
 use clap::{App, Arg};
-use std::fs;
+use std::fs::File;
 use std::path::Path;
 
 use atty::Stream;
+use std::io::prelude::*;
 use std::io::{self, Read};
 
 fn main() {
@@ -26,6 +27,7 @@ fn main() {
                 .short('c')
                 .long("config"),
         )
+        .arg(Arg::new("message").multiple(true))
         .get_matches();
 
     let notes_path = Path::new("/home/mkaz/Documents/Notes/Zk");
@@ -48,11 +50,35 @@ fn main() {
         println!("Not piped");
     }
 
+    // build message from command0line
+    if content == "" {
+        match matches.values_of("message") {
+            Some(msg) => {
+                let v: Vec<&str> = msg.collect();
+                content = v.join(" ");
+            }
+            _ => {}
+        };
+    }
+
     // get new filename
     if content != "" {
         let filename = get_new_filename();
         let file_path = notes_path.join(filename);
-        println!("Creating file: {:?}", file_path);
+
+        if file_path.exists() {
+            panic!("File already exists");
+        }
+
+        let mut file = match File::create(&file_path) {
+            Ok(file) => file,
+            Err(e) => panic!("Error creating file. {}", e),
+        };
+
+        match file.write_all(content.as_bytes()) {
+            Ok(_) => println!("File created: {:?}", file_path),
+            Err(e) => panic!("Error writing to file. {}", e),
+        }
     }
 }
 
