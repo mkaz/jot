@@ -1,13 +1,13 @@
 // extern crate toml;
 
-use chrono::{DateTime, Utc};
 use clap::{App, Arg};
 use std::fs::File;
 use std::path::Path;
 
-use atty::Stream;
 use std::io::prelude::*;
 use std::io::{self, Read};
+
+mod utils;
 
 fn main() {
     let matches = App::new("zk")
@@ -34,23 +34,20 @@ fn main() {
     // let config_data = fs::read_to_string(config_file).unwrap();
     // let config = config_data.parse::<toml::Value>().unwrap();
 
-    // check for command line args
-    // check for nothing
-    // check for stdin
+    // No View
+    // Create New File
     let mut content = String::new();
 
-    if is_pipe() {
-        let mut stdin = io::stdin(); // We get `Stdin` here.
+    // get file content from pipe
+    if utils::is_pipe() {
+        let mut stdin = io::stdin();
         match stdin.read_to_string(&mut content) {
             Ok(_) => {}
             Err(e) => println!("Error reading stdin: {:?}", e),
         };
-    } else {
-        // read args from command-line
-        println!("Not piped");
     }
 
-    // build message from command0line
+    // get file content from command-line
     if content == "" {
         match matches.values_of("message") {
             Some(msg) => {
@@ -63,7 +60,7 @@ fn main() {
 
     // get new filename
     if content != "" {
-        let filename = get_new_filename();
+        let filename = utils::get_new_filename();
         let file_path = notes_path.join(filename);
 
         if file_path.exists() {
@@ -80,14 +77,4 @@ fn main() {
             Err(e) => panic!("Error writing to file. {}", e),
         }
     }
-}
-
-fn is_pipe() -> bool {
-    !atty::is(Stream::Stdin)
-}
-
-// generate filename from date/time
-fn get_new_filename() -> String {
-    let now: DateTime<Utc> = Utc::now();
-    now.format("%y%m%d%H%M.md").to_string()
 }
