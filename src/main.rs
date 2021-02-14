@@ -27,7 +27,21 @@ fn main() {
                 .short('c')
                 .long("config"),
         )
-        .arg(Arg::new("message").multiple(true))
+        .arg(
+            Arg::new("content")
+                .about("Create note from command-line")
+                .multiple(true),
+        )
+        .after_help(
+            "Create notes:
+    1. Pipe into zk
+        echo 'Hello' | zk
+
+    2. Command-line args:
+        zk 'This is my note'
+
+    3. No args or pipe opens new note in $EDITOR",
+        )
         .get_matches();
 
     let notes_path = Path::new("/home/mkaz/Documents/Notes/Zk");
@@ -57,7 +71,7 @@ fn main() {
 
     // get file content from command-line
     if content == "" {
-        match matches.values_of("message") {
+        match matches.values_of("content") {
             Some(msg) => {
                 let v: Vec<&str> = msg.collect();
                 content = v.join(" ");
