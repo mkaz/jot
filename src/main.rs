@@ -7,6 +7,7 @@ use std::io::{self, Read};
 use std::path::Path;
 use std::process::Command;
 
+mod config;
 mod utils;
 
 fn main() {
@@ -44,7 +45,10 @@ fn main() {
         )
         .get_matches();
 
-    let notes_path = Path::new("/home/mkaz/Documents/Notes/Zk");
+    // read in config
+    let config = config::get_config("zk.conf");
+
+    let notes_path = Path::new(&config.notes_path);
     // let config_data = fs::read_to_string(config_file).unwrap();
     // let config = config_data.parse::<toml::Value>().unwrap();
 
