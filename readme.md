@@ -98,7 +98,7 @@ A bit of a toy project, a place to apply programming languages I'm learning, so 
 
 The utlity was initially called **jot** but to reduce one character and hop on to the Zettlekasten train, I changed it to **zk**.
 
-Plus it was first created in Python ([branch](https://github.com/mkaz/jot/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/jot/tree/golang)).  Now, it is Rust's turn.
+Plus it was first created in Python ([branch](https://github.com/mkaz/zk/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/zk/tree/golang)).  Now, it is Rust's turn.
 
 ## License
 
