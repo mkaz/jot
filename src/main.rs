@@ -12,7 +12,7 @@ mod utils;
 
 fn main() {
     let matches = App::new("zk")
-        .version("0.1.0")
+        .version("0.5.0")
         .about("Zettlekasten on the command-line")
         .author("Marcus Kazmierczak")
         .arg(
@@ -49,8 +49,11 @@ fn main() {
     let config = config::get_config("zk.conf");
 
     let notes_path = Path::new(&config.notesdir);
-    // let config_data = fs::read_to_string(config_file).unwrap();
-    // let config = config_data.parse::<toml::Value>().unwrap();
+    if !notes_path.exists() {
+        println!("Notes directory not found: {:?}", notes_path);
+        println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notesdir' config in zk.conf to an existing directory");
+        std::process::exit(1);
+    }
 
     // No View
     // Creating New File
