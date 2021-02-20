@@ -1,7 +1,7 @@
 // extern crate toml;
 
 use clap::{App, Arg};
-use std::fs::File;
+use std::fs;
 use std::io::prelude::*;
 use std::io::{self, Read};
 use std::path::Path;
@@ -57,12 +57,8 @@ fn main() {
     let mut content = String::new();
 
     // get new filename
-    // TODO: append to existing file
     let filename = utils::get_new_filename();
     let file_path = notes_path.join(filename);
-    if file_path.exists() {
-        panic!("File already exists");
-    }
 
     // get file content from pipe
     if utils::is_pipe() {
@@ -99,7 +95,12 @@ fn main() {
     }
     // file content exists create file
     else {
-        let mut file = match File::create(&file_path) {
+        let mut file = match fs::OpenOptions::new()
+            .read(true)
+            .append(true)
+            .create(true)
+            .open(&file_path)
+        {
             Ok(file) => file,
             Err(e) => panic!("Error creating file. {}", e),
         };
