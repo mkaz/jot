@@ -4,7 +4,7 @@ use toml;
 
 #[derive(Clone, Deserialize)]
 pub struct Config {
-    pub notes_path: String,
+    pub notesdir: String,
 }
 
 pub fn get_config(filename: &str) -> Config {

@@ -48,7 +48,7 @@ fn main() {
     // read in config
     let config = config::get_config("zk.conf");
 
-    let notes_path = Path::new(&config.notes_path);
+    let notes_path = Path::new(&config.notesdir);
     // let config_data = fs::read_to_string(config_file).unwrap();
     // let config = config_data.parse::<toml::Value>().unwrap();
 
