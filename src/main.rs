@@ -79,7 +79,7 @@ fn main() {
 
     // no content open file in EDITOR
     if content == "" {
-        // TODO: get editor command
+        // TODO: use editor env command
         match file_path.to_str() {
             Some(s) => {
                 Command::new("vim")
@@ -102,8 +102,15 @@ fn main() {
             Err(e) => panic!("Error creating file. {}", e),
         };
 
+        // We want to guarentee a line ending but not double up
+        // So subsequent notes don't append to same line
+        // 1. Remove last line ending (if exists)
+        let content = content.strip_suffix("\n").unwrap_or(&content);
+        // 2. Add back the line ending
+        let content = content.to_owned() + "\n";
+
         match file.write_all(content.as_bytes()) {
-            Ok(_) => println!("File created: {:?}", file_path),
+            Ok(_) => println!("Note added to: {}", file_path.to_str().unwrap()),
             Err(e) => panic!("Error writing to file. {}", e),
         }
     }
