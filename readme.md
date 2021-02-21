@@ -5,11 +5,13 @@ A simple command-line tool for taking notes stored in plain text files.
 
 ## Install
 
-1. Build from source for now.
+1. Build from source.
 
-2. Create zk.conf specify notesdir, see Configuration below
+2. Create zk.conf specify `notes_dir`, see [Configuration below](#configuration)
 
 ## Usage
+
+See `zk --help` for help.
 
 ### Creating notes
 
@@ -33,46 +35,23 @@ $ zk "Here is my note with a @tag"
 
 ### Viewing Notes
 
-Show the past week of notes
-```
-$ zk --week
-```
+What view features?
 
-Show today's notes
-```
-$ zk --today
-```
+- Search
+- By Date
+- By Tag
 
-Show a specific date's notes
-```
-$ zk --date 2017-10-15
-```
 
-Search by term
-```
-$ zk -s searchterm
-```
+### Editing Notes
 
-Use @tag to search. If you only include tags on command-line, then zk assumes you are searching by tag. You can include multiple tags and it will OR search for all of them.
-```
-$ zk @tag
-```
+What edit features?
 
-### Editing zks
-
-Edit today's note
-```
-$ zk --today --edit
-```
-
-Edit a specific date
-```
-$ zk --date 2017-11-15 --edit
-```
+- Add `--edit` to a view
+- Use menu to select results
 
 ## Configuration
 
-zk creates a single text file a day, `zk-2017-01-06.txt` organizing them in monthly and yearly folders. You need to set the `notesdir` in the `zk.conf` config file.
+You need to set the `notes_dir` in the `zk.conf` config file.
 
 The config file location be be specified various ways, zk will look for the following to determine where the config file is:
 
@@ -106,11 +85,9 @@ filename_format = '%y%m%d%H%M.md'
 
 ## History
 
-A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations.
+A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations.  It was first created in Python ([branch](https://github.com/mkaz/zk/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/zk/tree/golang)).  Now, it is Rust's turn.
 
-The utlity was initially called **jot** but to reduce one character and hop on to the Zettlekasten train, I changed it to **zk**.
-
-Plus it was first created in Python ([branch](https://github.com/mkaz/zk/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/zk/tree/golang)).  Now, it is Rust's turn.
+The utlity was renamed to **zk** during the Rust rewrite, it was previously  called **jot**. I started creating a new command-line Zettlekasten tool and it was basically the same as my existing utility, so I merged into one and I prefer the shorter **zk** command.
 
 ## License
 
