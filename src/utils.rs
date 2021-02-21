@@ -6,7 +6,7 @@ pub fn is_pipe() -> bool {
 }
 
 // generate filename from date/time
-pub fn get_new_filename() -> String {
+pub fn get_new_filename(format: String) -> String {
     let now: DateTime<Utc> = Utc::now();
-    now.format("%y%m%d%H%M.md").to_string()
+    now.format(&format).to_string()
 }

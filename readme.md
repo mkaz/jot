@@ -88,15 +88,16 @@ If not specified or found in any of the above locations, zk will error out with 
 
 The config file is in TOML format, example:
 
-```
+```toml
 # zk config file
 
 # base directory that all zks are stored
-notesdir = '~/Documents/Zks'
+notes_dir = '~/Documents/Zks'
 
-# The timestamp format for default notes
-# Format: TBD
-timestamp = '2006-01-02 3:04PM'
+# What timestamp to use for default notes
+# This allow you to create monthly, weekly, or daily notes.
+# See: https://docs.rs/chrono/0.4.0/chrono/format/strftime/index.html
+filename_format = '%y%m%d%H%M.md'
 ```
 
 ## Errata

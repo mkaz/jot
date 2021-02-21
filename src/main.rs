@@ -42,10 +42,10 @@ fn main() {
     // read in config
     let config = config::get_config(args.value_of("config"));
 
-    let notes_path = Path::new(&config.notesdir);
+    let notes_path = Path::new(&config.notes_dir);
     if !notes_path.exists() {
         println!("Notes directory not found: {:?}", notes_path);
-        println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notesdir' config in zk.conf to an existing directory");
+        println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notes_dir' config in zk.conf to an existing directory");
         std::process::exit(1);
     }
 
@@ -54,7 +54,7 @@ fn main() {
     let mut content = String::new();
 
     // get new filename
-    let filename = utils::get_new_filename();
+    let filename = utils::get_new_filename(config.filename_format);
     let file_path = notes_path.join(filename);
 
     // get file content from pipe
