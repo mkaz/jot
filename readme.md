@@ -7,7 +7,7 @@ A simple command-line tool for taking notes stored in plain text files.
 
 1. Build from source for now.
 
-2. Create your notes directory, default at `~/Documents/Notes`
+2. Create zk.conf specify notesdir, see Configuration below
 
 ## Usage
 
@@ -70,18 +70,29 @@ Edit a specific date
 $ zk --date 2017-11-15 --edit
 ```
 
-
 ## Configuration
 
-zk creates a single text file a day, `zk-2017-01-06.txt` organizing them in monthly and yearly folders. By default it stores them in `~/Documents/Notes/` that directory must already exist or it will give a warning.
+zk creates a single text file a day, `zk-2017-01-06.txt` organizing them in monthly and yearly folders. You need to set the `notesdir` in the `zk.conf` config file.
 
-zk will look for a config file `zk.conf` in your config directory in TOML format.
+The config file location be be specified various ways, zk will look for the following to determine where the config file is:
+
+1. Command-line argument. Use `zk --config /path/to/zk.conf`
+
+2. Environment variable: `ZK_CONFIG_FILE`
+
+3. Look for `${XDG_CONFIG_HOME}/zk.conf`
+
+4. Look for `${HOME}/.config/zk.conf`
+
+If not specified or found in any of the above locations, zk will error out with a message on to set the configuration file.
+
+The config file is in TOML format, example:
 
 ```
 # zk config file
 
 # base directory that all zks are stored
-notesdir = '~/Documents/zks'
+notesdir = '~/Documents/Zks'
 
 # The timestamp format for default notes
 # Format: TBD

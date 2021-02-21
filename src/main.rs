@@ -11,22 +11,16 @@ mod config;
 mod utils;
 
 fn main() {
-    let matches = App::new("zk")
+    let args = App::new("zk")
         .version("0.5.0")
         .about("Zettlekasten on the command-line")
         .author("Marcus Kazmierczak")
         .arg(
-            Arg::new("length")
-                .about("Number of words")
-                .short('l')
-                .long("length")
-                .takes_value(true),
-        )
-        .arg(
             Arg::new("config")
                 .about("Configuration file")
                 .short('c')
-                .long("config"),
+                .long("config")
+                .takes_value(true),
         )
         .arg(
             Arg::new("content")
@@ -46,7 +40,7 @@ fn main() {
         .get_matches();
 
     // read in config
-    let config = config::get_config("zk.conf");
+    let config = config::get_config(args.value_of("config"));
 
     let notes_path = Path::new(&config.notesdir);
     if !notes_path.exists() {
@@ -74,7 +68,7 @@ fn main() {
 
     // get file content from command-line
     if content == "" {
-        match matches.values_of("content") {
+        match args.values_of("content") {
             Some(msg) => {
                 let v: Vec<&str> = msg.collect();
                 content = v.join(" ");
