@@ -49,16 +49,23 @@ fn determine_filename(filearg: Option<&str>) -> String {
     }
 
     if let Ok(xdg_dir) = env::var("XDG_CONFIG_HOME") {
-        // check that xdg dir/zk.conf exists
-        let filepath = format!("{}/zk.conf", xdg_dir);
-        // TODO: check valid
-        return filepath;
+        let filepath = Path::new(&xdg_dir).join("zk.conf");
+        if filepath.exists() {
+            match filepath.to_str() {
+                Some(f) => return f.to_string(),
+                None => {}
+            };
+        }
     }
 
     if let Ok(home_dir) = env::var("HOME") {
-        let filepath = format!("{}/.config/zk.conf", home_dir);
-        // TODO: check valid
-        return filepath;
+        let filepath = Path::new(&home_dir).join(".config").join("zk.conf");
+        if filepath.exists() {
+            match filepath.to_str() {
+                Some(f) => return f.to_string(),
+                None => {}
+            };
+        }
     }
 
     // default
