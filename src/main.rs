@@ -1,6 +1,7 @@
 // extern crate toml;
 
 use clap::{App, Arg};
+use std::env;
 use std::fs;
 use std::io::prelude::*;
 use std::io::{self, Read};
@@ -79,10 +80,13 @@ fn main() {
 
     // no content open file in EDITOR
     if content == "" {
-        // TODO: use editor env command
+        let editor_cmd = match env::var("EDITOR") {
+            Ok(val) => val,
+            Err(_) => "vim".to_string(),
+        };
         match file_path.to_str() {
             Some(s) => {
-                Command::new("vim")
+                Command::new(editor_cmd)
                     .arg(s)
                     .status()
                     .expect("Error editing in vim");
