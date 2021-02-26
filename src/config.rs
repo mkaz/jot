@@ -48,6 +48,7 @@ fn determine_filename(filearg: Option<&str>) -> String {
         return val;
     }
 
+    // Linux
     if let Ok(xdg_dir) = env::var("XDG_CONFIG_HOME") {
         let filepath = Path::new(&xdg_dir).join("zk.conf");
         if filepath.exists() {
@@ -55,6 +56,19 @@ fn determine_filename(filearg: Option<&str>) -> String {
                 Some(f) => return f.to_string(),
                 None => {}
             };
+        }
+    }
+
+    // Windows
+    if let Ok(appdata) = env::var("APPDATA") {
+        let filepath = Path::new(&appdata).join("zk.conf");
+        if filepath.exists() {
+            match filepath.to_str() {
+                Some(f) => return f.to_string(),
+                None => {}
+            };
+        } else {
+            println!("Filepath does not exist: {:?}", filepath);
         }
     }
 
