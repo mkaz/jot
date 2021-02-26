@@ -15,7 +15,7 @@ See `zk --help` for help.
 
 ### Creating notes
 
-1. Use `zk` opens new note in editor (default: vim)
+1. Use `zk` opens new note in EDITOR (default: vim)
 
 2. Add note inline as a command-line argument
 ```
@@ -28,26 +28,24 @@ $ git log -1 | zk
 $ zk < file-to-import.txt
 ```
 
-You can create a tag using @tag which can then be used to search later.
-```
-$ zk "Here is my note with a @tag"
-```
+### Types of Notes
 
-### Viewing Notes
+There are five types of notes: default, monthly, weekly, daily, new.
 
-What view features?
+The note type is specified by using the related command-line flag (`--monthly` `--weekly` `--daily` or `--new`).  The default note is created when no flag is present.
 
-- Search
-- By Date
-- By Tag
+The default file names per type is:
 
+| Type              | Format String   | Example           |
+| monthly_format	| %Y-%m-%b.md     | 2021-02-Feb.md    |
+| weekly_format     | %Y-week-%U.md   | 2021-week-08.md   |
+| daily_format      | %Y-%m-%d.md     | 2021-02-25.md     |
+| new_format        | %Y%m%d%H%M%S.md | 20210225153423.md |
+| default_format    | %Y%m%d%H%M.md   | 202102251534.md   |
 
-### Editing Notes
+See [Chrono strftime documentation](https://docs.rs/chrono-wasi/0.4.10/chrono/format/strftime/index.html) for format parameters.
 
-What edit features?
-
-- Add `--edit` to a view
-- Use menu to select results
+If the file does not exist, it will be created, otherwise opened or appended to.
 
 ## Configuration
 
@@ -59,7 +57,9 @@ The config file location be be specified various ways, zk will look for the foll
 
 2. Environment variable: `ZK_CONFIG_FILE`
 
-3. Look for `${XDG_CONFIG_HOME}/zk.conf`
+3. Look for platform config directory
+a) Linux: `${XDG_CONFIG_HOME}/zk.conf`
+b) Windows: `${APPDATA}/zk.conf`
 
 4. Look for `${HOME}/.config/zk.conf`
 
@@ -71,12 +71,23 @@ The config file is in TOML format, example:
 # zk config file
 
 # base directory that all zks are stored
-notes_dir = '~/Documents/Zks'
+notes_dir = '~/Documents/Zettelkasten'
 
-# What timestamp to use for default notes
-# This allow you to create monthly, weekly, or daily notes.
+# What format to use for notes
 # See: https://docs.rs/chrono/0.4.0/chrono/format/strftime/index.html
-filename_format = '%y%m%d%H%M.md'
+default_format = '%Y%m%d%H%M.md'
+
+# 2021-02-Feb.md
+monthly_format="%Y-%m-%b.md"
+
+# 2021-week-08.md
+weekly_format="%Y-week-%U.md"
+
+# 2021-02-25.md
+daily_format="%Y-%m-%d.md"
+
+# 20210225153423.md
+new_format="%Y%m%d%H%M%S.md"
 ```
 
 ## Errata
