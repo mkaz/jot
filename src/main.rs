@@ -23,6 +23,10 @@ fn main() {
                 .long("config")
                 .takes_value(true),
         )
+        .arg(Arg::new("monthly").about("Monthly note").long("monthly"))
+        .arg(Arg::new("weekly").about("Weekly note").long("weekly"))
+        .arg(Arg::new("daily").about("Daily note").long("daily"))
+        .arg(Arg::new("new").about("New note").long("new"))
         .arg(
             Arg::new("content")
                 .about("Create note from command-line")
@@ -55,7 +59,7 @@ fn main() {
     let mut content = String::new();
 
     // get new filename
-    let filename = utils::get_new_filename(config.filename_format);
+    let filename = utils::get_new_filename(args.clone(), config.clone());
     let file_path = notes_path.join(filename);
 
     // get file content from pipe
