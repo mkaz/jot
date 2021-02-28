@@ -32,16 +32,15 @@ $ zk < file-to-import.txt
 
 There are five types of notes: default, monthly, weekly, daily, new.
 
-The note type is specified by using the related command-line flag (`--monthly` `--weekly` `--daily` or `--new`).  The default note is created when no flag is present.
+The note type is specified by using the command-line flag,  the default note is when no flag is present.
 
-The default file names per type is:
-
-| Type              | Format String   | Example           |
-| monthly_format	| %Y-%m-%b.md     | 2021-02-Feb.md    |
-| weekly_format     | %Y-week-%U.md   | 2021-week-08.md   |
-| daily_format      | %Y-%m-%d.md     | 2021-02-25.md     |
-| new_format        | %Y%m%d%H%M%S.md | 20210225153423.md |
-| default_format    | %Y%m%d%H%M.md   | 202102251534.md   |
+| Flag      | Config Name       | Format String   | Example           |
+|-----------|-------------------|-----------------|-------------------|
+| --monthly | monthly_format	| %Y-%m-%b.md     | 2021-02-Feb.md    |
+| --weekly  | weekly_format     | %Y-week-%U.md   | 2021-week-08.md   |
+| --daily   | daily_format      | %Y-%m-%d.md     | 2021-02-25.md     |
+| --new     | new_format        | %Y%m%d%H%M%S.md | 20210225153423.md |
+|           | default_format    | %Y%m%d%H%M.md   | 202102251534.md   |
 
 See [Chrono strftime documentation](https://docs.rs/chrono-wasi/0.4.10/chrono/format/strftime/index.html) for format parameters.
 
