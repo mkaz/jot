@@ -59,7 +59,7 @@ fn main() {
     let mut content = String::new();
 
     // get new filename
-    let filename = utils::get_new_filename(args, config);
+    let filename = utils::get_new_filename(args.clone(), config.clone());
     let file_path = notes_path.join(filename);
 
     // get file content from pipe

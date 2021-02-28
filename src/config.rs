@@ -7,12 +7,41 @@ use toml;
 #[derive(Clone, Deserialize)]
 pub struct Config {
     pub notes_dir: String,
+
     #[serde(default = "default_format")]
-    pub filename_format: String,
+    pub default_format: String,
+
+    #[serde(default = "monthly_format")]
+    pub monthly_format: String,
+
+    #[serde(default = "weekly_format")]
+    pub weekly_format: String,
+
+    #[serde(default = "daily_format")]
+    pub daily_format: String,
+
+    #[serde(default = "new_format")]
+    pub new_format: String,
 }
 
 fn default_format() -> String {
     "%Y%m%d%H%M.md".to_string()
+}
+
+fn monthly_format() -> String {
+    "%Y-%m-%b.md".to_string()
+}
+
+fn weekly_format() -> String {
+    "%Y-week-%U.md".to_string()
+}
+
+fn daily_format() -> String {
+    "%Y-%m-%d.md".to_string()
+}
+
+fn new_format() -> String {
+    "%Y%m%d%H%M%S.md".to_string()
 }
 
 pub fn get_config(filearg: Option<&str>) -> Config {
