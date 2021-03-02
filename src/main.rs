@@ -1,11 +1,10 @@
 // extern crate toml;
 
-use clap::{App, Arg};
+use clap::{crate_version, App, Arg};
 use std::env;
 use std::fs;
 use std::io::prelude::*;
 use std::io::{self, Read};
-use std::path::Path;
 use std::process::Command;
 
 mod config;
@@ -13,7 +12,7 @@ mod utils;
 
 fn main() {
     let args = App::new("zk")
-        .version("0.5.0")
+        .version(crate_version!())
         .about("Zettlekasten on the command-line")
         .author("Marcus Kazmierczak")
         .arg(
@@ -44,22 +43,18 @@ fn main() {
         )
         .get_matches();
 
+    let mut content = String::new();
+
     // read in config
     let config = config::get_config(args.value_of("config"));
 
-    let notes_path = Path::new(&config.notes_dir);
+    // get new filename
+    let (filename, notes_path) = utils::get_new_filename(args.clone(), config.clone());
     if !notes_path.exists() {
         println!("Notes directory not found: {:?}", notes_path);
         println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notes_dir' config in zk.conf to an existing directory");
         std::process::exit(1);
     }
-
-    // No View
-    // Creating New File
-    let mut content = String::new();
-
-    // get new filename
-    let filename = utils::get_new_filename(args.clone(), config.clone());
     let file_path = notes_path.join(filename);
 
     // get file content from pipe

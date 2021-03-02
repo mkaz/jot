@@ -7,7 +7,9 @@ A simple command-line tool for taking notes stored in plain text files.
 
 1. Build from source.
 
-2. Create zk.conf specify `notes_dir`, see [Configuration below](#configuration)
+2. Create zk.conf, see [Configuration below](#configuration)
+
+	- `default_path` is only required config
 
 ## Usage
 
@@ -30,7 +32,7 @@ $ zk < file-to-import.txt
 
 ### Types of Notes
 
-There are five types of notes: default, monthly, weekly, daily, new.
+There are five types of notes: default, monthly, weekly, daily, new. This is a means for filing notes for different uses. I use the weekly notes for my weekly status updates. My monthly notes are for on-going projects through the month. I use daily or new note types for one-offs.
 
 The note type is specified by using the command-line flag,  the default note is when no flag is present.
 
@@ -44,21 +46,22 @@ The note type is specified by using the command-line flag,  the default note is 
 
 See [Chrono strftime documentation](https://docs.rs/chrono-wasi/0.4.10/chrono/format/strftime/index.html) for format parameters.
 
-If the file does not exist, it will be created, otherwise opened or appended to.
+Each note type can also have its own path, see config below. If the file does not exist, it will be created, otherwise opened or appended to.
 
 ## Configuration
 
-You need to set the `notes_dir` in the `zk.conf` config file.
+You need to set the `default_path` in the `zk.conf` config file.
 
-The config file location be be specified various ways, zk will look for the following to determine where the config file is:
+The config file location can be specified various ways, zk will look for the following to determine where the config file is:
 
 1. Command-line argument. Use `zk --config /path/to/zk.conf`
 
 2. Environment variable: `ZK_CONFIG_FILE`
 
 3. Look for platform config directory
-a) Linux: `${XDG_CONFIG_HOME}/zk.conf`
-b) Windows: `${APPDATA}/zk.conf`
+
+	a) Linux: `${XDG_CONFIG_HOME}/zk.conf`
+	b) Windows: `${APPDATA}/zk.conf`
 
 4. Look for `${HOME}/.config/zk.conf`
 
@@ -69,24 +72,28 @@ The config file is in TOML format, example:
 ```toml
 # zk config file
 
-# base directory that all zks are stored
-notes_dir = '~/Documents/Zettelkasten'
+# base directory that all notes are stored
+default_path = '~/Documents/Zettelkasten'
 
 # What format to use for notes
 # See: https://docs.rs/chrono/0.4.0/chrono/format/strftime/index.html
 default_format = '%Y%m%d%H%M.md'
 
 # 2021-02-Feb.md
-monthly_format="%Y-%m-%b.md"
+monthly_format = "%Y-%m-%b.md"
+# monthly_path = '/full/path/to/monthly/notes'
 
 # 2021-week-08.md
-weekly_format="%Y-week-%U.md"
+weekly_format = "%Y-week-%U.md"
+# weekly_path = '/full/path/to/weekly/notes'
 
 # 2021-02-25.md
-daily_format="%Y-%m-%d.md"
+daily_format = "%Y-%m-%d.md"
+# daily_path = '/full/path/to/daily/notes'
 
 # 20210225153423.md
-new_format="%Y%m%d%H%M%S.md"
+new_format = "%Y%m%d%H%M%S.md"
+# new_path = '/full/path/to/new/notes'
 ```
 
 ## Errata
@@ -103,7 +110,7 @@ The utlity was renamed to **zk** during the Rust rewrite, it was previously  cal
 
 zk is open source and free to use, it is licensed under a <a rel="license" href="https://opensource.org/licenses/MIT">MIT License</a>.
 
-I welcome any contributions. Please feel free to open an issues to report a bug, submit a feature. Pull requests are also welcome.
+I welcome contributions, but as a side project I may not always respond promptly. Please feel free to open an issues to report a bug, submit a feature, or even a pull request.
 
 An [mkaz](https://mkaz.blog/) contrivance.
 

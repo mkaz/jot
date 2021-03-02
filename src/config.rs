@@ -6,22 +6,25 @@ use toml;
 
 #[derive(Clone, Deserialize)]
 pub struct Config {
-    pub notes_dir: String,
-
     #[serde(default = "default_format")]
     pub default_format: String,
+    pub default_path: String,
 
     #[serde(default = "monthly_format")]
     pub monthly_format: String,
+    pub monthly_path: Option<String>,
 
     #[serde(default = "weekly_format")]
     pub weekly_format: String,
+    pub weekly_path: Option<String>,
 
     #[serde(default = "daily_format")]
     pub daily_format: String,
+    pub daily_path: Option<String>,
 
     #[serde(default = "new_format")]
     pub new_format: String,
+    pub new_path: Option<String>,
 }
 
 fn default_format() -> String {
