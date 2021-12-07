@@ -1,5 +1,5 @@
 
-# zk
+# jot
 
 A simple command-line tool for taking notes stored in plain text files.
 
@@ -7,27 +7,27 @@ A simple command-line tool for taking notes stored in plain text files.
 
 1. Build from source.
 
-2. Create zk.conf, see [Configuration below](#configuration)
+2. Create jot.conf, see [Configuration below](#configuration)
 
 	- `default_path` is only required config
 
 ## Usage
 
-See `zk --help` for help.
+See `jot --help` for help.
 
 ### Creating notes
 
-1. Use `zk` opens new note in EDITOR (default: vim)
+1. Use `jot` opens new note in EDITOR (default: vim)
 
 2. Add note inline as a command-line argument
 ```
-$ zk "Here is my note"
+$ jot "Here is my note"
 ```
 
 3. Use STDIN by piping or slurping in data
 ```
-$ git log -1 | zk
-$ zk < file-to-import.txt
+$ git log -1 | jot
+$ jot < file-to-import.txt
 ```
 
 ### Types of Notes
@@ -50,30 +50,30 @@ Each note type can also have its own path, see config below. If the file does no
 
 ## Configuration
 
-You need to set the `default_path` in the `zk.conf` config file.
+You need to set the `default_path` in the `jot.conf` config file.
 
-The config file location can be specified various ways, zk will look for the following to determine where the config file is:
+The config file location can be specified various ways, `jot` will look for the following to determine where the config file is:
 
-1. Command-line argument. Use `zk --config /path/to/zk.conf`
+1. Command-line argument. Use `jot --config /path/to/jot.conf`
 
-2. Environment variable: `ZK_CONFIG_FILE`
+2. Environment variable: `JOT_CONFIG_FILE`
 
 3. Look for platform config directory
 
-	a) Linux: `${XDG_CONFIG_HOME}/zk.conf`
-	b) Windows: `${APPDATA}/zk.conf`
+	a) Linux: `${XDG_CONFIG_HOME}/jot.conf`
+	b) Windows: `${APPDATA}/jot.conf`
 
-4. Look for `${HOME}/.config/zk.conf`
+4. Look for `${HOME}/.config/jot.conf`
 
-If not specified or found in any of the above locations, zk will error out with a message on to set the configuration file.
+If not specified or found in any of the above locations, `jot` will error out with a message to set the configuration file.
 
 The config file is in TOML format, example:
 
 ```toml
-# zk config file
+# jot config file
 
 # base directory that all notes are stored
-default_path = '~/Documents/Zettelkasten'
+default_path = '~/Documents/jot'
 
 # What format to use for notes
 # See: https://docs.rs/chrono/0.4.0/chrono/format/strftime/index.html
@@ -102,13 +102,11 @@ new_format = "%Y%m%d%H%M%S.md"
 
 ## History
 
-A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations.  It was first created in Python ([branch](https://github.com/mkaz/zk/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/zk/tree/golang)).  Now, it is Rust's turn.
-
-The utlity was renamed to **zk** during the Rust rewrite, it was previously  called **jot**. I started creating a new command-line Zettlekasten tool and it was basically the same as my existing utility, so I merged into one and I prefer the shorter **zk** command.
+A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations.  It was first created in Python ([branch](https://github.com/mkaz/jot/tree/python)) and then rewritten in Go ([branch](https://github.com/mkaz/jot/tree/golang)).  Now, it is Rust's turn.
 
 ## License
 
-zk is open source and free to use, it is licensed under a <a rel="license" href="https://opensource.org/licenses/MIT">MIT License</a>.
+Jot is open source and free to use, it is licensed under a <a rel="license" href="https://opensource.org/licenses/MIT">MIT License</a>.
 
 I welcome contributions, but as a side project I may not always respond promptly. Please feel free to open an issues to report a bug, submit a feature, or even a pull request.
 

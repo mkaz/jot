@@ -11,9 +11,9 @@ mod config;
 mod utils;
 
 fn main() {
-    let args = App::new("zk")
+    let args = App::new("jot")
         .version(crate_version!())
-        .about("Zettlekasten on the command-line")
+        .about("Jot notes on the command-line")
         .author("Marcus Kazmierczak")
         .arg(
             Arg::new("config")
@@ -29,15 +29,15 @@ fn main() {
         .arg(
             Arg::new("content")
                 .about("Create note from command-line")
-                .multiple(true),
+                .multiple_values(true),
         )
         .after_help(
             "Create notes:
-    1. Pipe into zk
-        echo 'Hello' | zk
+    1. Pipe into jot
+        echo 'Hello' | jot
 
     2. Command-line args:
-        zk 'This is my note'
+        jot 'This is my note'
 
     3. No args or pipe opens new note in $EDITOR",
         )
@@ -52,7 +52,7 @@ fn main() {
     let (filename, notes_path) = utils::get_new_filename(args.clone(), config.clone());
     if !notes_path.exists() {
         println!("Notes directory not found: {:?}", notes_path);
-        println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notes_dir' config in zk.conf to an existing directory");
+        println!("To make sure notes are not created in some random spot, the notes directory must already exist. Please create or change 'notes_dir' config in jot.conf to an existing directory");
         std::process::exit(1);
     }
     let file_path = notes_path.join(filename);

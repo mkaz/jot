@@ -1,5 +1,5 @@
 [package]
-name = "zk"
+name = "jot"
 version = "0.5.2"
 authors = ["Marcus Kazmierczak <marcus@mkaz.com>"]
 edition = "2018"
@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atty = "0.2"
+atty = "0.2.14"
 chrono = "0.4.19"
-clap = "3.0.0-beta.2"
-serde = { version = "1.0", features = ["derive"] }
-toml = "0.5"
+clap = "3.0.0-beta.5"
+serde = { version = "1.0.13", features = ["derive"] }
+toml = "0.5.8"

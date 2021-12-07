@@ -65,9 +65,9 @@ pub fn get_config(filearg: Option<&str>) -> Config {
 
 // Determine config file:
 //   1. command-line parameter
-//   2. ZK environment variable
+//   2. JOT_CONFIG_HOME env variable
 //   3. XDG_CONFIG_HOME env variable
-//   4. $HOME/.config/zk.conf
+//   4. $HOME/.config/jot.conf
 //   5. Default current dir
 fn determine_filename(filearg: Option<&str>) -> String {
     // from command-line
@@ -76,13 +76,13 @@ fn determine_filename(filearg: Option<&str>) -> String {
     }
 
     // check enviornment variable
-    if let Ok(val) = env::var("ZK_CONFIG_FILE") {
+    if let Ok(val) = env::var("JOT_CONFIG_FILE") {
         return val;
     }
 
     // Linux
     if let Ok(xdg_dir) = env::var("XDG_CONFIG_HOME") {
-        let filepath = Path::new(&xdg_dir).join("zk.conf");
+        let filepath = Path::new(&xdg_dir).join("jot.conf");
         if filepath.exists() {
             match filepath.to_str() {
                 Some(f) => return f.to_string(),
@@ -93,7 +93,7 @@ fn determine_filename(filearg: Option<&str>) -> String {
 
     // Windows
     if let Ok(appdata) = env::var("APPDATA") {
-        let filepath = Path::new(&appdata).join("zk.conf");
+        let filepath = Path::new(&appdata).join("jot.conf");
         if filepath.exists() {
             match filepath.to_str() {
                 Some(f) => return f.to_string(),
@@ -105,7 +105,7 @@ fn determine_filename(filearg: Option<&str>) -> String {
     }
 
     if let Ok(home_dir) = env::var("HOME") {
-        let filepath = Path::new(&home_dir).join(".config").join("zk.conf");
+        let filepath = Path::new(&home_dir).join(".config").join("jot.conf");
         if filepath.exists() {
             match filepath.to_str() {
                 Some(f) => return f.to_string(),
@@ -115,5 +115,5 @@ fn determine_filename(filearg: Option<&str>) -> String {
     }
 
     // default
-    return "zk.conf".to_string();
+    return "jot.conf".to_string();
 }
