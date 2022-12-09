@@ -1,79 +1,55 @@
-
-= jot
+# jot
 
 A simple command-line tool for taking notes stored in plain text files.
 
-== Install
+## Install
 
 1. Build from source.
 
 2. Create jot.conf, see [Configuration below](#configuration)
 
-	- `default_path` is only required config
+    - `default_path` is only required config
 
-== Usage
+## Usage
 
 See `jot --help` for help.
 
-=== Creating notes
+### Creating notes
 
 1. Use `jot` opens new note in EDITOR (default: vim)
 
 2. Add note inline as a command-line argument
 
-[source,shell]
+```
 $ jot "Here is my note"
+```
 
 3. Use STDIN by piping or slurping in data
 
-[source,shell]
+```
 $ git log -1 | jot
 $ jot < file-to-import.txt
+```
 
-=== Types of Notes
+### Types of Notes
 
 There are five types of notes: default, monthly, weekly, daily, new. This is a means for filing notes for different uses. I use the weekly notes for my weekly status updates. My monthly notes are for on-going projects through the month. I use daily or new note types for one-offs.
 
-The note type is specified by using the command-line flag,  the default note is when no flag is present.
+The note type is specified by using the command-line flag, the default note is when no flag is present.
 
-[%header,cols=4]
-|===
-| Flag
-| Config Name
-| Format String
-| Example
-
-| --monthly
-| monthly_format
-| %Y-%m-%b.md
-| 2021-02-Feb.md
-
-| --weekly
-| weekly_format
-| %Y-week-%U.md
-| 2021-week-08.md
-
-| --daily
-| daily_format
-| %Y-%m-%d.md
-| 2021-02-25.md
-
-| --new
-| new_format
-| %Y%m%d%H%M%S.md
-| 20210225153423.md
-
-|           
-| default_format
-| %Y%m%d%H%M.md
-| 202102251534.md
-|===
+| Flag      | Config Name    | Format String   | Example           |
+| --------- | -------------- | --------------- | ----------------- |
+| --monthly | monthly_format | %Y-%m-%b.md     | 2021-02-Feb.md    |
+| --weekly  | weekly_format  | %Y-week-%U.md   | 2021-week-08.md   |
+| --daily   | daily_format   | %Y-%m-%d.md     | 2021-02-25.md     |
+| --new     | new_format     | %Y%m%d%H%M%S.md | 20210225153423.md |
+|           | default_format | %Y%m%d%H%M.md   | 202102251534.md   |
 
 See https://docs.rs/chrono-wasi/0.4.10/chrono/format/strftime/[Chrono strftime documentation] for format parameters.
 
 Each note type can also have its own path, see config below. If the file does not exist, it will be created, otherwise opened or appended to.
 
-== Configuration
+## Configuration
 
 You need to set the `default_path` in the `jot.conf` config file.
 
@@ -94,8 +70,8 @@ If not specified or found in any of the above locations, `jot` will error out wi
 
 The config file is in TOML format, example:
 
-[source,toml]
---
+```toml
+
 # jot config file
 
 # base directory that all notes are stored
@@ -120,21 +96,18 @@ daily_format = "%Y-%m-%d.md"
 # 20210225153423.md
 new_format = "%Y%m%d%H%M%S.md"
 # new_path = '/full/path/to/new/notes'
---
+```
 
-== Errata
+## Errata
 
 **Syncing data** - You can use a cloud or sync provider to keep your notes in-sync across computers. I'm happy with the open-source https://syncthing.net/[Syncthing] to keep my Documents folder in sync across computers. I hear Google Drive, Dropbox, and others might be able to do the same.
 
-== History
+## History
 
-A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations.  It was first created in Python (https://github.com/mkaz/jot/tree/python[branch]) and then rewritten in Go (https://github.com/mkaz/jot/tree/golang[branch]).  Now, it is Rust's turn.
+A bit of a toy project, a place to apply programming languages I'm learning, so it has gone through a couple iterations. It was first created in Python (https://github.com/mkaz/jot/tree/python[branch]) and then rewritten in Go (https://github.com/mkaz/jot/tree/golang[branch]). Now, it is Rust's turn.
 
-== License
+## License
 
-Jot is open-source and free to use, it is licensed under a https://opensource.org/licenses/MIT"[MIT License,rel=license].
+Jot is open-source and free to use, it is licensed under a [MIT License](https://opensource.org/licenses/MIT)
 
 I welcome contributions, but as a side project I may not always respond promptly. Please feel free to open an issues to report a bug, submit a feature, or even a pull request.
-
-An https://mkaz.blog/[mkaz] contrivance.
-
