@@ -1,34 +1,33 @@
 // extern crate toml;
 
-use clap::{crate_version, App, Arg};
+use clap::{Command, Arg, crate_version};
 use std::env;
 use std::fs;
 use std::io::prelude::*;
 use std::io::{self, Read};
-use std::process::Command;
 
 mod config;
 mod utils;
 
 fn main() {
-    let args = App::new("jot")
+    let args = Command::new("jot")
         .version(crate_version!())
         .about("Jot notes on the command-line")
         .author("Marcus Kazmierczak")
         .arg(
             Arg::new("config")
-                .about("Configuration file")
+                .help("Configuration file")
                 .short('c')
                 .long("config")
                 .takes_value(true),
         )
-        .arg(Arg::new("monthly").about("Monthly note").long("monthly"))
-        .arg(Arg::new("weekly").about("Weekly note").long("weekly"))
-        .arg(Arg::new("daily").about("Daily note").long("daily"))
-        .arg(Arg::new("new").about("New note").long("new"))
+        .arg(Arg::new("monthly").help("Monthly note").long("monthly"))
+        .arg(Arg::new("weekly").help("Weekly note").long("weekly"))
+        .arg(Arg::new("daily").help("Daily note").long("daily"))
+        .arg(Arg::new("new").help("New note").long("new"))
         .arg(
             Arg::new("content")
-                .about("Create note from command-line")
+                .help("Create note from command-line")
                 .multiple_values(true),
         )
         .after_help(
@@ -85,7 +84,7 @@ fn main() {
         };
         match file_path.to_str() {
             Some(s) => {
-                Command::new(editor_cmd)
+                std::process::Command::new(editor_cmd)
                     .arg(s)
                     .status()
                     .expect("Error editing in vim");
